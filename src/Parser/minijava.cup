@@ -14,7 +14,7 @@ import java_cup.runtime.*;
 /* Terminals (lexical tokens returned by the scanner): */
 
 /* reserved words */
-// terminal DISPLAY;
+terminal DISPLAY;
 terminal PRINT;
 
 /* operators */

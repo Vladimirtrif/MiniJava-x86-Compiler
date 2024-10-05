@@ -174,8 +174,11 @@ white = {eol}|[ \t]
 /* whitespace */
 {white}+ { /* ignore whitespace */ }
 
-/* comment */
-// TODO
+// /* comment */
+"/*" ( [^"/"] | [^"*"]"/" )* "*/"  { /* ignore comments */ }
+
+// /* single line comment */
+"//"[^{eol}]*{eol}  { /* ignore comments */ }
 
 /* lexical errors (last so other matches take precedence) */
 . {
