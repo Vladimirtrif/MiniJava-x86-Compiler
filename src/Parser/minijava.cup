@@ -24,7 +24,7 @@ terminal PLUS, MINUS, MULT, LESS, AND, NOT, BECOMES;
 terminal LPAREN, RPAREN, LBRACE, RBRACE, LBRACKET, RBRACKET, SEMICOLON, COMMA;
 
 /* types (Type) */
-terminal BOOLEAN, INTEGER;
+terminal BOOLEAN, INT;
 
 /* truth values (Expression) */
 terminal TRUE, FALSE;
@@ -33,6 +33,7 @@ terminal TRUE, FALSE;
 terminal THIS, NEW, CLASS, PUBLIC, STATIC, VOID, MAIN, STRING, EXTENDS, RETURN, WHILE, IF, ELSE, DOT, LENGTH;
 
 /* identifiers */
+terminal int INTEGER;
 terminal String IDENTIFIER;
 
 

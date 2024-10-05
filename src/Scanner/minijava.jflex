@@ -94,7 +94,58 @@ import Parser.sym;
     ComplexSymbol cs = (ComplexSymbol)s; 
     switch (cs.sym) {
       case sym.PRINT: return "PRINT";
+
+      /* operators */
+      case sym.PLUS: return "PLUS";
+      case sym.MINUS: return "MINUS";
+      case sym.MULT: return "MULT";
+      case sym.LESS: return "LESS";
+      case sym.AND: return "AND";
+      case sym.NOT: return "NOT";
+      case sym.BECOMES: return "BECOMES";
+
+      /* delimiters */
+      case sym.LPAREN: return "LPAREN";
+      case sym.RPAREN: return "RPAREN";
+      case sym.LBRACE: return "LBRACE";
+      case sym.RBRACE: return "RBRACE";
+      case sym.LBRACKET: return "LBRACKET";
+      case sym.RBRACKET: return "RBRACKET";
+      case sym.SEMICOLON: return "SEMICOLON";
+      case sym.COMMA: return "COMMA";
+
+      /* types (Type) */ 
+      case sym.BOOLEAN: return "BOOLEAN";
+      case sym.INT: return "INT";
+
+      /* truth values (Expression) */
+      case sym.TRUE: return "TRUE";
+      case sym.FALSE: return "FALSE";
+
+      /* etc. */
+      case sym.THIS: return "THIS";
+      case sym.NEW: return "NEW";
+      case sym.CLASS: return "CLASS";
+      case sym.PUBLIC: return "PUBLIC";
+      case sym.STATIC: return "STATIC";
+      case sym.VOID: return "VOID";
+      case sym.MAIN: return "MAIN";
+      case sym.STRING: return "STRING";
+      case sym.EXTENDS: return "EXTENDS";
+      case sym.RETURN: return "RETURN";
+      case sym.WHILE: return "WHILE";
+      case sym.IF: return "IF";
+      case sym.ELSE: return "ELSE";
+      case sym.DOT: return "DOT";
+      case sym.LENGTH: return "LENGTH";
+
+      /* integers */
+      case sym.INTEGER: return "INTEGER(" + (String)cs.value + ")";
+
+      /* identifiers */ 
       case sym.IDENTIFIER: return "ID(" + (String)cs.value + ")";
+
+      /* exceptions */ 
       case sym.error: return "<UNEXPECTED(" + (String)cs.value + ")>";
       default: return cs.getName();
     } 
@@ -140,7 +191,7 @@ white = {eol}|[ \t]
 
 /* types (Type) */ 
 "boolean" { return symbol(sym.BOOLEAN); }
-"int" { return symbol(sym.INTEGER); }
+"int" { return symbol(sym.INT); }
 
 /* truth values (Expression) */
 "true" { return symbol(sym.TRUE); }
@@ -164,7 +215,7 @@ white = {eol}|[ \t]
 "length" { return symbol(sym.LENGTH); }
 
 /* integers */
-{digit}|{pos_digit}{digit}* { return symbol(sym.INTEGER, yytext()); }
+{digit} | {pos_digit}{digit}* { return symbol(sym.INTEGER, yytext()); }
 
 /* identifiers */
 {letter} ({letter}|{digit}|_)* {
