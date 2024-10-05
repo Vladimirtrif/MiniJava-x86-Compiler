@@ -94,11 +94,10 @@ import Parser.sym;
     ComplexSymbol cs = (ComplexSymbol)s; 
     switch (cs.sym) {
       case sym.PRINT: return "PRINT";
-      // TODO: Add more symbols
       case sym.IDENTIFIER: return "ID(" + (String)cs.value + ")";
       case sym.error: return "<UNEXPECTED(" + (String)cs.value + ")>";
       default: return cs.getName();
-    }
+    } 
   }
 %}
 
@@ -123,25 +122,25 @@ white = {eol}|[ \t]
 /* operators */
 "+" { return symbol(sym.PLUS); }
 "-" { return symbol(sym.MINUS); }
-"=" { return symbol(sym.BECOMES); }
 "*" { return symbol(sym.MULT); }
 "<" { return symbol(sym.LESS); }
 "&&" { return symbol(sym.AND); }
 "!" { return symbol(sym.NOT); }
+"=" { return symbol(sym.BECOMES); }
 
 /* delimiters */
-"[" { return symbol(sym.LBRACKET); }
-"]" { return symbol(sym.RBRACKET); }
-"{" { return symbol(sym.LBRACE); }
-"}" { return symbol(sym.RBRACE); }
 "(" { return symbol(sym.LPAREN); }
 ")" { return symbol(sym.RPAREN); }
+"{" { return symbol(sym.LBRACE); }
+"}" { return symbol(sym.RBRACE); }
+"[" { return symbol(sym.LBRACKET); }
+"]" { return symbol(sym.RBRACKET); }
 ";" { return symbol(sym.SEMICOLON); }
 "," { return symbol(sym.COMMA); }
 
 /* types (Type) */ 
 "boolean" { return symbol(sym.BOOLEAN); }
-"int" { return symbol(sym.INT); }
+"int" { return symbol(sym.INTEGER); }
 
 /* truth values (Expression) */
 "true" { return symbol(sym.TRUE); }
