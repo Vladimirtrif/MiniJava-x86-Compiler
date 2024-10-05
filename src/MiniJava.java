@@ -26,6 +26,7 @@ class MiniJava {
                 System.out.print(s.symbolToString(t) + " ");
                 t = s.next_token();
             }
+            System.exit(0);
         } catch (Exception e) {
             // yuck: some kind of error in the compiler implementation
             // that we're not expecting (a bug!)
@@ -33,6 +34,7 @@ class MiniJava {
                         e.toString());
             // print out a stack dump
             e.printStackTrace();
+            System.exit(1);
         }
    }
 }
