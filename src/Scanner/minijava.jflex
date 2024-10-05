@@ -226,10 +226,10 @@ white = {eol}|[ \t]
 /* whitespace */
 {white}+ { /* ignore whitespace */ }
 
-// /* comment */
+/* comment */
 "/*" ( [^"/"] | [^"*"]"/" )* "*/"  { /* ignore comments */ }
 
-// /* single line comment */
+/* single line comment */
 "//"[^{eol}]*{eol}  { /* ignore comments */ }
 
 /* lexical errors (last so other matches take precedence) */
