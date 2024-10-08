@@ -38,13 +38,13 @@ public class TestDemoLanguageScanner {
             FileInputStream input = new FileInputStream(TEST_FILES_LOCATION + testCaseName + TEST_FILES_INPUT_EXTENSION);
             String[] expected = new String(Files.readAllBytes(Paths.get(TEST_FILES_LOCATION, testCaseName + TEST_FILES_EXPECTED_EXTENSION)),
                     Charset.defaultCharset()).split(" ");
-            
+
             ComplexSymbolFactory sf = new ComplexSymbolFactory();
             Reader in = new BufferedReader(new InputStreamReader(input));
             scanner s = new scanner(in, sf);
             Symbol t = s.next_token();
             int i = 0;
-            while (t.sym != sym.EOF){ 
+            while (t.sym != sym.EOF){
                 // verify each token that we scan
                 assertEquals(expected[i], s.symbolToString(t));
                 t = s.next_token();
