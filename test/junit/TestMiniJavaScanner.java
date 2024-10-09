@@ -14,13 +14,8 @@ public class TestMiniJavaScanner {
     public static final String TEST_FILES_INPUT_EXTENSION = ".java";
     public static final String TEST_FILES_EXPECTED_EXTENSION = ".expected";
 
-    /*
-        You may be able to reuse this private helper method for your own
-        testing of the MiniJava scanner.
-    */
     private void runScannerTestCase(String testCaseName) {
         try {
-            //Testing utility code, doesn't work right now
             new MiniJavaTestBuilder()
                     .assertSystemOutMatchesContentsOf(
                             Path.of(TEST_FILES_LOCATION,
@@ -37,5 +32,13 @@ public class TestMiniJavaScanner {
     @Test
     public void testSomeMath() {
         runScannerTestCase("SomeMath");
+    }
+
+    /*
+        Test for the countdown program
+    */
+    @Test
+    public void testCountdown() {
+        runScannerTestCase("Countdown");
     }
 }
