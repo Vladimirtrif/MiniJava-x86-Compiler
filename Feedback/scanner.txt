@@ -1,0 +1,10 @@
+Part I of the MiniJava compiler project, the scanner
+
+TOTAL: 38/40
+Late days used for this assignment: 0
+
+The scanner does not handle unclosed multiline comments properly. It should recognize that a comment was started and produce an error regarding the unclosed comment/premature end of file, rather than an UNEXPECTED(/) followed by TIMES. (0)
+
+The scanner fails to recognize (or not, when appropriate) some syntactically subtle cases involving delimited comments (e.g., "/* /* ... */ */", "/*/ ... */", and "/***/"). Please see homework 1 sample solution for some ideas on how to approach these comments. (-1)
+
+The scanner does not always return a nonzero exit status after reporting unrecognized input text (i.e., lexical errors). (-1)
