@@ -38,8 +38,8 @@ class MiniJava {
             // exit with code 1
             exitCode = 1;
         }
-        System.out.println();
-        System.out.println("exitCode: " + exitCode);
+        // System.out.println();
+        // System.out.println("exitCode: " + exitCode);
         System.exit(exitCode);
    }
 }
