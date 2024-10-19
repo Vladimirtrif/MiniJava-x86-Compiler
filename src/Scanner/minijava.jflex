@@ -166,7 +166,6 @@ white = {eol}|[ \t]
 
 /* reserved words (first so that they take precedence over identifiers) */
 
-// TODO: Am I missing any symbols?
 
 //"display" { return symbol(sym.DISPLAY); }
 "System.out.println" { return symbol(sym.PRINT); }
@@ -227,7 +226,7 @@ white = {eol}|[ \t]
 {white}+ { /* ignore whitespace */ }
 
 /* comment */
-"/*" ( [^"/"] | [^"*"]"/" )* "*/"  { /* ignore comments */ }
+"/*" ( [^"*"] | "*"[^"/"] | "*"+"*"[^"*""/"] )* "*/"  { /* ignore comments */ }
 
 /* single line comment */
 "//"[^{eol}]*{eol}  { /* ignore comments */ }
