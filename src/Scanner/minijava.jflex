@@ -226,18 +226,26 @@ white = {eol}|[ \t]
 {white}+ { /* ignore whitespace */ }
 
 /* comment */
-"/*" ( [^"*"] | "*"[^"/"] | "*"+"*"[^"*""/"] )* "*/"  { /* ignore comments */ }
+"/*" ( [^"*"] | "*"+[^"*""/"] )* "*"* "*/"  { /* ignore comments */ }
+"/*" ( [^"*"] | "*"+[^"*""/"] )* "*"* {
+  System.err.printf(
+    "%nUnclosed multi-line comments on line %d at column %d of input.%n",
+    // yytext(),
+    yyline + 1, yycolumn + 1
+  );
+  return symbol(sym.error, yytext());
+}
 
 /* single line comment */
 "//"[^{eol}]*{eol}  { /* ignore comments */ }
 
 /* lexical errors (last so other matches take precedence) */
 . {
-    System.err.printf(
-      "%nUnexpected character '%s' on line %d at column %d of input.%n",
-      yytext(), yyline + 1, yycolumn + 1
-    );
-    return symbol(sym.error, yytext());
-  }
+  System.err.printf(
+    "%nUnexpected character '%s' on line %d at column %d of input.%n",
+    yytext(), yyline + 1, yycolumn + 1
+  );
+  return symbol(sym.error, yytext());
+}
 
 <<EOF>> { return symbol(sym.EOF); }
