@@ -30,7 +30,7 @@ terminal BOOLEAN, INT;
 terminal TRUE, FALSE;
 
 /* etc. */
-terminal THIS, NEW, CLASS, PUBLIC, STATIC, VOID, MAIN, STRING, EXTENDS, RETURN, WHILE, IF, ELSE, DOT, LENGTH;
+terminal THIS, NEW, CLASS, PUBLIC, STATIC, VOID, MAIN, STRING, EXTENDS, RETURN, WHILE, IF, ELSE, DOT, LENGTH, EOF;
 
 /* identifiers */
 terminal int INTEGER;
@@ -39,10 +39,16 @@ terminal String IDENTIFIER;
 
 /* Nonterminals (constructed by parser): */
 
-nonterminal List<Statement> Program;
-nonterminal Statement Statement;
-nonterminal Assign AssignStatement;
-nonterminal Display DisplayStatement;
+nonterminal Program Program;
+nonterminal MainClass MainClass ;
+nonterminal ClassDecl ClassDeclaration;
+nonterminal ClassDeclList ClassDeclarationList;
+nonterminal VarDecl VarDeclaration;
+nonterminal VarDeclList VarDeclarationList;
+nonterminal MethodDecl MethodDeclaration;
+nonterminal MethodDeclList MethodDeclarationList;
+nonterminal Type Type;
+nonterminal List<Statement> Statement;
 nonterminal Exp Expression;
 nonterminal Identifier Identifier;
 
@@ -54,30 +60,61 @@ precedence left PLUS;
 
 /* Productions: */
 
-Program ::= Statement:s
-            {: List<Statement> p = new LinkedList<Statement>();
-               p.add(s);
-               RESULT = p; :}
-        | Program:p Statement:s
-            {: p.add(s); RESULT = p; :};
+Program ::= MainClass: p ClassDeclarationList: l EOF
+            {:
+                RESULT = new Program(p, l, pxleft);
+            :}
+         |  MainClass: p EOF
+            {:
+                RESULT = new Program(p, new ClassDeclList(pxleft), pxleft);
+            :};
 
-Statement   ::= AssignStatement:s
-                {: RESULT = s; :}
-            | DisplayStatement:s
-                {: RESULT = s; :};
+ClassDeclarationList ::= ClassDeclarationList: l ClassDeclaration: c
+                         {:
+                            l.add(c);
+                            RESULT = l;
+                         :}
+                      |  ClassDeclaration: c
+                        {:
+                            ClassDeclList l = new ClassDeclList(cxleft);
+                            l.add(c);
+                            RESULT = l;
+                        :};
+MainClass   ::= CLASS Identifier: ai1 LBRACE PUBLIC STATIC VOID MAIN LPAREN STRING LBRACKET RBRACKET Identifier: ai2 RPAREN
+                LBRACE Statement: as RBRACE RBRACE
+                {:
+                    RESULT = new MainClass(ai1, ai2, as, ai1xleft);
+                :};
 
-AssignStatement ::= Identifier:id BECOMES Expression:expr SEMICOLON
-                    {: RESULT = new Assign(id, expr, idxleft); :};
+ClassDeclaration ::= CLASS Identifier: ai LBRACE RBRACE
+                        {: RESULT = new ClassDeclSimple(ai, new VerbDeclList(aixleft), new MethodDeclList(aixleft), aixleft); :}
+                     | CLASS Identifier: ai LBRACE VarDeclarationList: vl  RBRACE
+                        {: RESULT = new ClassDeclSimple(ai, vl , new MethodDeclList(aixleft), aixleft);:}
+                     | CLASS Identifier: ai LBRACE MethodDeclarationList: mdl RBRACE
+                        {: RESULT = new ClassDeclSimple(ai, new VerbDeclList(aixleft), mdl, aixleft); :}
+                     | CLASS Identifier: ai LBRACE VarDeclarationList: vl MethodDeclarationList: mdl RBRACE
+                        {: RESULT = new ClassDeclSimple(ai, vl, mdl, aixleft); :}
+                     | CLASS Identifier: ai EXTENDS Identifier: ai1 LBRACE RBRACE
+                        {: RESULT = new ClassDeclExtends(ai, ai1, new VerbDeclList(aixleft), new MethodDeclList(aixleft), aixleft); :}
+                     | CLASS Identifier: ai EXTENDS Identifier: ai1 LBRACE VarDeclarationList: vl RBRACE
+                        {: RESULT = new ClassDeclExtends(ai, ai1, vl, new MethodDeclList(aixleft), aixleft); :}
+                     | CLASS Identifier: ai EXTENDS Identifier: ai1 LBRACE MethodDeclarationList: mdl RBRACE
+                        {: RESULT = new ClassDeclExtends(ai, ai1, new VerbDeclList(aixleft), mdl, aixleft); :}
+                     | CLASS Identifier: ai EXTENDS Identifier: ai1 LBRACE VarDeclarationList: vl MethodDeclarationList: mdl RBRACE
+                        {: RESULT = new ClassDeclExtends(ai, ai1, vl, mdl, aixleft); :};
 
-Identifier  ::= IDENTIFIER:id
-                {: RESULT = new Identifier(id, idxleft); :};
+VarDeclaration ::= ;
 
-//DisplayStatement ::= DISPLAY:d Expression:expr SEMICOLON
-                    // {: RESULT = new Display(expr, dxleft); :};
+VarDeclarationList ::= ;
 
-Expression    ::= IDENTIFIER:name
-            {: RESULT = new IdentifierExp(name, namexleft); :}
-        | Expression:arg1 PLUS Expression:arg2
-            {: RESULT = new Plus(arg1, arg2, arg1xleft); :}
-        | LPAREN Expression:expr RPAREN
-            {: RESULT = expr; :};
+MethodDeclaration ::= ;
+
+MethodDeclarationList ::= ;
+
+Type ::= ;
+
+Statement  ::= ;
+
+Expression    ::= ;
+
+Identifier ::= ;
