@@ -103,18 +103,46 @@ ClassDeclaration ::= CLASS Identifier: ai LBRACE RBRACE
                      | CLASS Identifier: ai EXTENDS Identifier: ai1 LBRACE VarDeclarationList: vl MethodDeclarationList: mdl RBRACE
                         {: RESULT = new ClassDeclExtends(ai, ai1, vl, mdl, aixleft); :};
 
-VarDeclaration ::= ;
+VarDeclaration ::= Type: t Identifier: id SEMICOLON
+                   {: RESULT = new VarDecl(t, id, txleft); :};
 
-VarDeclarationList ::= ;
+VarDeclarationList ::= VarDeclarationList: l VarDeclaration: v
+                       {:
+                            l.add(v);
+                            RESULT = l;
+                                                :}
+                       |  VarDeclaration: v
+                       {:
+                            VarDeclList l = new VarDeclList(vxleft);
+                            l.add(v);
+                            RESULT = l;
+                       :};
 
 MethodDeclaration ::= ;
 
-MethodDeclarationList ::= ;
+MethodDeclarationList ::= MethodDeclarationList: l MethodDeclaration: m
+                            {:
+                                l.add(m);
+                                RESULT = l;
+                            :}
+                          |  MethodDeclaration: m
+                            {:
+                                MethodDeclList l = new MethodDeclList(mxleft);
+                                l.add(v);
+                                RESULT = l;
+                            :};
 
-Type ::= ;
+Type ::= INT: p LBRACKET RBRACKET
+            {: RESULT = new IntArrayType(pxleft); :}
+         | INT : p
+            {: RESULT = new IntegerType(pxleft); :}
+         | BOOLEAN: p
+            {: RESULT = new BooleanType(pxleft); :}
+         | Identifier:id
+            {: RESULT = new IdentifierType(id, idxleft); :};
 
 Statement  ::= ;
 
-Expression    ::= ;
+Expression ::= ;
 
-Identifier ::= ;
+Identifier ::= IDENTIFIER: id {: RESULT = new Identifier(id, idxleft); :};
