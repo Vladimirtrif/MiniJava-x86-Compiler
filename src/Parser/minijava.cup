@@ -194,12 +194,12 @@ ArrayLength ::= Exp:array DOT LENGTH
             {: RESULT = new ArrayLength(array, arrayxleft); :};
 
 Type ::= INT:t
-         {: RESULT = new IntegerType(txleft); :}
-         | BOOLEAN:t
-         {: RESULT = new BooleanType(txleft); :}
-         | Identifier:id
-         {: RESULT = new IdentifierType(id.s, idxleft); :}
-         | INT:t LBRACKET RBRACKET
-         {: RESULT = new IntArrayType(txleft); :};
+            {: RESULT = new IntegerType(txleft); :}
+            | BOOLEAN:t
+            {: RESULT = new BooleanType(txleft); :}
+            | Identifier:id
+            {: RESULT = new IdentifierType(id.s, idxleft); :}
+            | INT:t LBRACKET RBRACKET
+            {: RESULT = new IntArrayType(txleft); :};
 
 Identifier ::= IDENTIFIER: id {: RESULT = new Identifier(id, idxleft); :};
