@@ -26,7 +26,7 @@ terminal LPAREN, RPAREN, LBRACE, RBRACE, LBRACKET, RBRACKET, SEMICOLON, COMMA;
 /* types (Type) */
 terminal BOOLEAN, INT;
 
-/* truth values (Expression) */
+/* truth values (Exp) */
 terminal TRUE, FALSE;
 
 /* etc. */
@@ -38,29 +38,47 @@ terminal String IDENTIFIER;
 
 
 /* Nonterminals (constructed by parser): */
-
 nonterminal Program Program;
-nonterminal MainClass MainClass ;
-nonterminal ClassDecl ClassDeclaration;
-nonterminal ClassDeclList ClassDeclarationList;
+nonterminal MainClass MainClass;
+
+nonterminal MethodDecl MethodDecl;
+nonterminal MethodDeclList MethodDeclList;
+
+nonterminal Statement Statement;
+nonterminal StatementList StatementList;
+
+nonterminal Exp Exp;
+nonterminal ExpList ExpList;
+
+nonterminal ArrayLookup ArrayLookup;
+nonterminal ArrayLength ArrayLength;
+
 nonterminal VarDecl VarDeclaration;
 nonterminal VarDeclList VarDeclarationList;
-nonterminal MethodDecl MethodDeclaration;
-nonterminal MethodDeclList MethodDeclarationList;
+
+nonterminal Formal Formal;
+nonterminal FormalList FormalList;
+
+nonterminal ClassDecl ClassDecl;
+nonterminal ClassDeclList ClassDeclList;
+
 nonterminal Type Type;
-nonterminal List<Statement> Statement;
-nonterminal Exp Expression;
 nonterminal Identifier Identifier;
 
 
 /* Precedence declarations: */
 
-precedence left PLUS;
-
+precedence nonassoc BECOMES;
+precedence nonassoc AND;
+precedence left LT;
+precedence left PLUS, MINUS;
+precedence left TIMES;
+precedence right NOT, NEW;
+precedence left DOT;
 
 /* Productions: */
 
-Program ::= MainClass: p ClassDeclarationList: l EOF
+Program ::= MainClass: p ClassDeclList: l EOF
             {:
                 RESULT = new Program(p, l, pxleft);
             :}
@@ -69,66 +87,67 @@ Program ::= MainClass: p ClassDeclarationList: l EOF
                 RESULT = new Program(p, new ClassDeclList(pxleft), pxleft);
             :};
 
-ClassDeclarationList ::= ClassDeclarationList: l ClassDeclaration: c
+ClassDeclList ::= ClassDeclList: l ClassDecl: c
                          {:
                             l.add(c);
                             RESULT = l;
                          :}
-                      |  ClassDeclaration: c
+                      |  ClassDecl: c
                         {:
                             ClassDeclList l = new ClassDeclList(cxleft);
                             l.add(c);
                             RESULT = l;
                         :};
+
 MainClass   ::= CLASS Identifier: ai1 LBRACE PUBLIC STATIC VOID MAIN LPAREN STRING LBRACKET RBRACKET Identifier: ai2 RPAREN
                 LBRACE Statement: as RBRACE RBRACE
                 {:
                     RESULT = new MainClass(ai1, ai2, as, ai1xleft);
                 :};
 
-ClassDeclaration ::= CLASS Identifier: ai LBRACE RBRACE
-                        {: RESULT = new ClassDeclSimple(ai, new VerbDeclList(aixleft), new MethodDeclList(aixleft), aixleft); :}
-                     | CLASS Identifier: ai LBRACE VarDeclarationList: vl  RBRACE
+ClassDecl ::= CLASS Identifier: ai LBRACE RBRACE
+                        {: RESULT = new ClassDeclSimple(ai, new VarDeclList(aixleft), new MethodDeclList(aixleft), aixleft); :}
+                     | CLASS Identifier: ai LBRACE VarDeclList: vl  RBRACE
                         {: RESULT = new ClassDeclSimple(ai, vl , new MethodDeclList(aixleft), aixleft);:}
-                     | CLASS Identifier: ai LBRACE MethodDeclarationList: mdl RBRACE
-                        {: RESULT = new ClassDeclSimple(ai, new VerbDeclList(aixleft), mdl, aixleft); :}
-                     | CLASS Identifier: ai LBRACE VarDeclarationList: vl MethodDeclarationList: mdl RBRACE
+                     | CLASS Identifier: ai LBRACE MethodDeclList: mdl RBRACE
+                        {: RESULT = new ClassDeclSimple(ai, new VarDeclList(aixleft), mdl, aixleft); :}
+                     | CLASS Identifier: ai LBRACE VarDeclList: vl MethodDeclList: mdl RBRACE
                         {: RESULT = new ClassDeclSimple(ai, vl, mdl, aixleft); :}
                      | CLASS Identifier: ai EXTENDS Identifier: ai1 LBRACE RBRACE
-                        {: RESULT = new ClassDeclExtends(ai, ai1, new VerbDeclList(aixleft), new MethodDeclList(aixleft), aixleft); :}
-                     | CLASS Identifier: ai EXTENDS Identifier: ai1 LBRACE VarDeclarationList: vl RBRACE
+                        {: RESULT = new ClassDeclExtends(ai, ai1, new VarDeclList(aixleft), new MethodDeclList(aixleft), aixleft); :}
+                     | CLASS Identifier: ai EXTENDS Identifier: ai1 LBRACE VarDeclList: vl RBRACE
                         {: RESULT = new ClassDeclExtends(ai, ai1, vl, new MethodDeclList(aixleft), aixleft); :}
-                     | CLASS Identifier: ai EXTENDS Identifier: ai1 LBRACE MethodDeclarationList: mdl RBRACE
-                        {: RESULT = new ClassDeclExtends(ai, ai1, new VerbDeclList(aixleft), mdl, aixleft); :}
-                     | CLASS Identifier: ai EXTENDS Identifier: ai1 LBRACE VarDeclarationList: vl MethodDeclarationList: mdl RBRACE
+                     | CLASS Identifier: ai EXTENDS Identifier: ai1 LBRACE MethodDeclList: mdl RBRACE
+                        {: RESULT = new ClassDeclExtends(ai, ai1, new VarDeclList(aixleft), mdl, aixleft); :}
+                     | CLASS Identifier: ai EXTENDS Identifier: ai1 LBRACE VarDeclList: vl MethodDeclList: mdl RBRACE
                         {: RESULT = new ClassDeclExtends(ai, ai1, vl, mdl, aixleft); :};
 
-VarDeclaration ::= Type: t Identifier: id SEMICOLON
+VarDecl ::= Type: t Identifier: id SEMICOLON
                    {: RESULT = new VarDecl(t, id, txleft); :};
 
-VarDeclarationList ::= VarDeclarationList: l VarDeclaration: v
+VarDeclList ::= VarDeclList: l VarDecl: v
                        {:
                             l.add(v);
                             RESULT = l;
                                                 :}
-                       |  VarDeclaration: v
+                       |  VarDecl: v
                        {:
                             VarDeclList l = new VarDeclList(vxleft);
                             l.add(v);
                             RESULT = l;
                        :};
 
-MethodDeclaration ::= ;
+MethodDecl ::= ;
 
-MethodDeclarationList ::= MethodDeclarationList: l MethodDeclaration: m
+MethodDeclList ::= MethodDeclList: l MethodDecl: m
                             {:
                                 l.add(m);
                                 RESULT = l;
                             :}
-                          |  MethodDeclaration: m
+                          |  MethodDecl: m
                             {:
                                 MethodDeclList l = new MethodDeclList(mxleft);
-                                l.add(v);
+                                l.add(m);
                                 RESULT = l;
                             :};
 
@@ -143,6 +162,6 @@ Type ::= INT: p LBRACKET RBRACKET
 
 Statement  ::= ;
 
-Expression ::= ;
+Exp ::= ;
 
 Identifier ::= IDENTIFIER: id {: RESULT = new Identifier(id, idxleft); :};
