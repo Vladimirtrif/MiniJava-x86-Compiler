@@ -41,6 +41,12 @@ terminal String IDENTIFIER;
 nonterminal Program Program;
 nonterminal MainClass MainClass;
 
+nonterminal ClassDecl ClassDecl;
+nonterminal ClassDeclList ClassDeclList;
+
+nonterminal VarDecl VarDecl;
+nonterminal VarDeclList VarDeclList;
+
 nonterminal MethodDecl MethodDecl;
 nonterminal MethodDeclList MethodDeclList;
 
@@ -48,20 +54,15 @@ nonterminal Statement Statement;
 nonterminal StatementList StatementList;
 
 nonterminal Exp Exp;
+nonterminal ExpList NonemptyExpList;
 nonterminal ExpList ExpList;
+
+nonterminal Formal Formal;
+nonterminal FormalList NonemptyFormalList;
+nonterminal FormalList FormalList;
 
 nonterminal ArrayLookup ArrayLookup;
 nonterminal ArrayLength ArrayLength;
-
-nonterminal VarDecl VarDeclaration;
-nonterminal VarDeclList VarDeclarationList;
-
-nonterminal Formal Formal;
-nonterminal FormalList FormalList;
-
-nonterminal ClassDecl ClassDecl;
-nonterminal ClassDeclList ClassDeclList;
-
 nonterminal Type Type;
 nonterminal Identifier Identifier;
 
@@ -78,90 +79,127 @@ precedence left DOT;
 
 /* Productions: */
 
-Program ::= MainClass: p ClassDeclList: l EOF
-            {:
-                RESULT = new Program(p, l, pxleft);
-            :}
-         |  MainClass: p EOF
-            {:
-                RESULT = new Program(p, new ClassDeclList(pxleft), pxleft);
-            :};
+Program ::= MainClass:c ClassDeclList:cs EOF
+            {: RESULT = new Program(c, cs, cxleft); :};
 
-ClassDeclList ::= ClassDeclList: l ClassDecl: c
-                         {:
-                            l.add(c);
-                            RESULT = l;
-                         :}
-                      |  ClassDecl: c
-                        {:
-                            ClassDeclList l = new ClassDeclList(cxleft);
-                            l.add(c);
-                            RESULT = l;
-                        :};
+MainClass ::= CLASS Identifier:id LBRACE PUBLIC STATIC VOID MAIN LPAREN STRING LBRACKET RBRACKET Identifier:args RPAREN LBRACE Statement:s RBRACE RBRACE
+            {: RESULT = new MainClass(id, args, s, idxleft); :};
 
-MainClass   ::= CLASS Identifier: ai1 LBRACE PUBLIC STATIC VOID MAIN LPAREN STRING LBRACKET RBRACKET Identifier: ai2 RPAREN
-                LBRACE Statement: as RBRACE RBRACE
-                {:
-                    RESULT = new MainClass(ai1, ai2, as, ai1xleft);
-                :};
+ClassDecl ::= CLASS Identifier:id LBRACE VarDeclList:vs MethodDeclList:ms RBRACE
+            {: RESULT = new ClassDeclSimple(id, vs, ms, idxleft); :}
+            | CLASS Identifier:id EXTENDS Identifier:parent LBRACE VarDeclList:vs MethodDeclList:ms RBRACE
+            {: RESULT = new ClassDeclExtends(id, parent, vs, ms, idxleft); :};
 
-ClassDecl ::= CLASS Identifier: ai LBRACE RBRACE
-                        {: RESULT = new ClassDeclSimple(ai, new VarDeclList(aixleft), new MethodDeclList(aixleft), aixleft); :}
-                     | CLASS Identifier: ai LBRACE VarDeclList: vl  RBRACE
-                        {: RESULT = new ClassDeclSimple(ai, vl , new MethodDeclList(aixleft), aixleft);:}
-                     | CLASS Identifier: ai LBRACE MethodDeclList: mdl RBRACE
-                        {: RESULT = new ClassDeclSimple(ai, new VarDeclList(aixleft), mdl, aixleft); :}
-                     | CLASS Identifier: ai LBRACE VarDeclList: vl MethodDeclList: mdl RBRACE
-                        {: RESULT = new ClassDeclSimple(ai, vl, mdl, aixleft); :}
-                     | CLASS Identifier: ai EXTENDS Identifier: ai1 LBRACE RBRACE
-                        {: RESULT = new ClassDeclExtends(ai, ai1, new VarDeclList(aixleft), new MethodDeclList(aixleft), aixleft); :}
-                     | CLASS Identifier: ai EXTENDS Identifier: ai1 LBRACE VarDeclList: vl RBRACE
-                        {: RESULT = new ClassDeclExtends(ai, ai1, vl, new MethodDeclList(aixleft), aixleft); :}
-                     | CLASS Identifier: ai EXTENDS Identifier: ai1 LBRACE MethodDeclList: mdl RBRACE
-                        {: RESULT = new ClassDeclExtends(ai, ai1, new VarDeclList(aixleft), mdl, aixleft); :}
-                     | CLASS Identifier: ai EXTENDS Identifier: ai1 LBRACE VarDeclList: vl MethodDeclList: mdl RBRACE
-                        {: RESULT = new ClassDeclExtends(ai, ai1, vl, mdl, aixleft); :};
+ClassDeclList ::= ClassDecl:c ClassDeclList:l
+            {: RESULT = l; l.addElement(c); :}
+            |
+            {: RESULT = new ClassDeclList(0); :};
 
-VarDecl ::= Type: t Identifier: id SEMICOLON
-                   {: RESULT = new VarDecl(t, id, txleft); :};
+VarDecl ::= Type:t Identifier:id SEMICOLON
+            {: RESULT = new VarDecl(t, id, txleft); :};
 
-VarDeclList ::= VarDeclList: l VarDecl: v
-                       {:
-                            l.add(v);
-                            RESULT = l;
-                                                :}
-                       |  VarDecl: v
-                       {:
-                            VarDeclList l = new VarDeclList(vxleft);
-                            l.add(v);
-                            RESULT = l;
-                       :};
+VarDeclList ::= VarDeclList:vs VarDecl:v
+            {: RESULT = vs; vs.addElement(v); :}
+            |
+            {: RESULT = new VarDeclList(0); :};
 
-MethodDecl ::= ;
+MethodDecl ::= PUBLIC:p Type:t Identifier:id LPAREN FormalList:params RPAREN LBRACE VarDeclList:vs StatementList:ss RETURN Exp:rv SEMICOLON RBRACE
+            {: RESULT = new MethodDecl(t, id, params, vs, ss, rv, idxleft); :};
 
-MethodDeclList ::= MethodDeclList: l MethodDecl: m
-                            {:
-                                l.add(m);
-                                RESULT = l;
-                            :}
-                          |  MethodDecl: m
-                            {:
-                                MethodDeclList l = new MethodDeclList(mxleft);
-                                l.add(m);
-                                RESULT = l;
-                            :};
+MethodDeclList ::= MethodDecl:m MethodDeclList:l
+            {: RESULT = l; l.addElement(m); :}
+            |
+            {: RESULT = new MethodDeclList(0); :};
 
-Type ::= INT: p LBRACKET RBRACKET
-            {: RESULT = new IntArrayType(pxleft); :}
-         | INT : p
-            {: RESULT = new IntegerType(pxleft); :}
-         | BOOLEAN: p
-            {: RESULT = new BooleanType(pxleft); :}
+Statement ::= Identifier:id BECOMES Exp:e SEMICOLON
+            {: RESULT = new Assign(id, e, idxleft); :}
+            | IF:if LPAREN Exp:e RPAREN Statement:sIf ELSE Statement:sElse
+            {: RESULT = new If(e, sIf, sElse, ifxleft); :}
+            | PRINT:print LPAREN Exp:e RPAREN SEMICOLON
+            {: RESULT = new Print(e, printxleft); :}
+            | Identifier:id LBRACKET Exp:e RBRACKET BECOMES Exp:v SEMICOLON
+            {: RESULT = new ArrayAssign(id, e, v, idxleft); :}
+            | WHILE:while LPAREN Exp:e RPAREN Statement:s
+            {: RESULT = new While(e, s, whilexleft); :}
+            | LBRACE StatementList:slist RBRACE
+            {: RESULT = new Block(ss, ssxleft); :};
+
+StatementList ::= Statement:s StatementList:ss
+            {: RESULT = ss; ss.addElement(s); :}
+            |
+            {: RESULT = new StatementList(0); :};
+
+Exp ::= IDENTIFIER:id
+            {: RESULT = new IdentifierExp(id, idxleft); :}
+            | Exp:arg1 PLUS Exp:arg2
+            {: RESULT = new Plus(arg1, arg2, arg1xleft); :}
+            | Exp:arg1 MINUS Exp:arg2
+            {: RESULT = new Minus(arg1, arg2, arg1xleft); :}
+            | Exp:arg1 TIMES Exp:arg2
+            {: RESULT = new Times(arg1, arg2, arg1xleft); :}
+            | Exp:arg1 LESS Exp:arg2
+            {: RESULT = new LessThan(arg1, arg2, arg1xleft); :}
+            | Exp:arg1 AND Exp:arg2
+            {: RESULT = new And(arg1, arg2, arg1xleft); :}
+            | LPAREN Exp:e RPAREN
+            {: RESULT = e; :}
+            | NOT:not Exp:e
+            {: RESULT = new Not(e, notxleft); :}
+            | TRUE:true
+            {: RESULT = new True(truexleft); :}
+            | FALSE:false
+            {: RESULT = new False(falsexleft); :}
+            | THIS:this
+            {: RESULT = new This(thisxleft); :}
+            | NEW:new Identifier:id LPAREN RPAREN
+            {: RESULT = new NewObject(id, newxleft); :}
+            | ArrayLength:l
+            {: RESULT = l; :}
+            | ArrayLookup:l
+            {: RESULT = l; :}
+            | NEW:new INT LBRACKET Exp:e RBRACKET
+            {: RESULT = new NewArray(e, newxleft); :}
+            | Exp:e DOT Identifier:id LPAREN ExpList:args RPAREN
+            {: RESULT = new Call(e, id, args, exleft); :}
+            | INTEGER:i
+            {: RESULT = new IntegerLiteral(Integer.parseInt(i), ixleft); :};  // TODO: Is this casting correct?
+
+NonemptyExpList ::= Exp e
+            {: RESULT = new ExpList(exleft); RESULT.addElement(e); :}
+            | Exp:e COMMA ExpList:es
+            {: RESULT = es; RESULT.addElement(e); :};
+
+ExpList ::= NonemptyExpList
+            {: RESULT = NonemptyExpList; :}
+            |
+            {: RESULT = new ExpList(0); :};
+
+Formal ::= Type:t Identifier:id
+            {: RESULT = new Formal(t, id, txleft); :};
+
+NonemptyFormalList ::= Formal:f COMMA FormalParameterList:fs
+            {: RESULT = fs; fs.addElement(f); :}
+            | Formal:f
+            {: RESULT = new FormalList(fxleft); RESULT.addElement(f); :};
+
+FormalList ::= NonemptyFormalList:fs 
+            {: RESULT = fs; :}
+            |
+            {: RESULT = new FormalList(0); :};
+
+ArrayLookup ::= Exp:array LBRACKET Exp:index RBRACKET
+            {: RESULT = new ArrayLookup(array, index, arrayxleft); :};
+
+ArrayLength ::= Exp:array DOT LENGTH
+            {: RESULT = new ArrayLength(array, arrayxleft); :};
+
+Type ::= INT:t
+         {: RESULT = new IntegerType(txleft); :}
+         | BOOLEAN:t
+         {: RESULT = new BooleanType(txleft); :}
          | Identifier:id
-            {: RESULT = new IdentifierType(id, idxleft); :};
-
-Statement  ::= ;
-
-Exp ::= ;
+         {: RESULT = new IdentifierType(id.s, idxleft); :}
+         | INT:t LBRACKET RBRACKET
+         {: RESULT = new IntArrayType(txleft); :};
 
 Identifier ::= IDENTIFIER: id {: RESULT = new Identifier(id, idxleft); :};
