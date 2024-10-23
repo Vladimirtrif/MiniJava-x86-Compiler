@@ -91,43 +91,43 @@ ClassDecl ::= CLASS Identifier:id LBRACE VarDeclList:vs MethodDeclList:ms RBRACE
             {: RESULT = new ClassDeclExtends(id, parent, vs, ms, idxleft); :};
 
 ClassDeclList ::= ClassDecl:c ClassDeclList:l
-            {: RESULT = l; l.addElement(c); :}
+            {: RESULT = l; l.add(c); :}
             |
-            {: RESULT = new ClassDeclList(0); :};
+            {: RESULT = new ClassDeclList(new Location(0, 0)); :};
 
 VarDecl ::= Type:t Identifier:id SEMICOLON
             {: RESULT = new VarDecl(t, id, txleft); :};
 
 VarDeclList ::= VarDeclList:vs VarDecl:v
-            {: RESULT = vs; vs.addElement(v); :}
+            {: RESULT = vs; vs.add(v); :}
             |
-            {: RESULT = new VarDeclList(0); :};
+            {: RESULT = new VarDeclList(new Location(0, 0)); :};
 
 MethodDecl ::= PUBLIC:p Type:t Identifier:id LPAREN FormalList:params RPAREN LBRACE VarDeclList:vs StatementList:ss RETURN Exp:rv SEMICOLON RBRACE
             {: RESULT = new MethodDecl(t, id, params, vs, ss, rv, idxleft); :};
 
 MethodDeclList ::= MethodDecl:m MethodDeclList:l
-            {: RESULT = l; l.addElement(m); :}
+            {: RESULT = l; l.add(m); :}
             |
-            {: RESULT = new MethodDeclList(0); :};
+            {: RESULT = new MethodDeclList(new Location(0, 0)); :};
 
 Statement ::= Identifier:id BECOMES Exp:e SEMICOLON
             {: RESULT = new Assign(id, e, idxleft); :}
-            | IF:if LPAREN Exp:e RPAREN Statement:sIf ELSE Statement:sElse
-            {: RESULT = new If(e, sIf, sElse, ifxleft); :}
-            | PRINT:print LPAREN Exp:e RPAREN SEMICOLON
-            {: RESULT = new Print(e, printxleft); :}
+            | IF:xIf LPAREN Exp:e RPAREN Statement:sIf ELSE Statement:sElse
+            {: RESULT = new If(e, sIf, sElse, xIfxleft); :}
+            | PRINT:xPrint LPAREN Exp:e RPAREN SEMICOLON
+            {: RESULT = new Print(e, xPrintxleft); :}
             | Identifier:id LBRACKET Exp:e RBRACKET BECOMES Exp:v SEMICOLON
             {: RESULT = new ArrayAssign(id, e, v, idxleft); :}
-            | WHILE:while LPAREN Exp:e RPAREN Statement:s
-            {: RESULT = new While(e, s, whilexleft); :}
-            | LBRACE StatementList:slist RBRACE
+            | WHILE:xWhile LPAREN Exp:e RPAREN Statement:s
+            {: RESULT = new While(e, s, xWhilexleft); :}
+            | LBRACE StatementList:ss RBRACE
             {: RESULT = new Block(ss, ssxleft); :};
 
 StatementList ::= Statement:s StatementList:ss
-            {: RESULT = ss; ss.addElement(s); :}
+            {: RESULT = ss; ss.add(s); :}
             |
-            {: RESULT = new StatementList(0); :};
+            {: RESULT = new StatementList(new Location(0, 0)); :};
 
 Exp ::= IDENTIFIER:id
             {: RESULT = new IdentifierExp(id, idxleft); :}
@@ -145,47 +145,47 @@ Exp ::= IDENTIFIER:id
             {: RESULT = e; :}
             | NOT:not Exp:e
             {: RESULT = new Not(e, notxleft); :}
-            | TRUE:true
-            {: RESULT = new True(truexleft); :}
-            | FALSE:false
-            {: RESULT = new False(falsexleft); :}
-            | THIS:this
-            {: RESULT = new This(thisxleft); :}
-            | NEW:new Identifier:id LPAREN RPAREN
-            {: RESULT = new NewObject(id, newxleft); :}
+            | TRUE:xTrue
+            {: RESULT = new True(xTruexleft); :}
+            | FALSE:xFalse
+            {: RESULT = new False(xFalsexleft); :}
+            | THIS:xThis
+            {: RESULT = new This(xThisxleft); :}
+            | NEW:xNew Identifier:id LPAREN RPAREN
+            {: RESULT = new NewObject(id, xNewxleft); :}
             | ArrayLength:l
             {: RESULT = l; :}
             | ArrayLookup:l
             {: RESULT = l; :}
-            | NEW:new INT LBRACKET Exp:e RBRACKET
-            {: RESULT = new NewArray(e, newxleft); :}
+            | NEW:xNew INT LBRACKET Exp:e RBRACKET
+            {: RESULT = new NewArray(e, xNewxleft); :}
             | Exp:e DOT Identifier:id LPAREN ExpList:args RPAREN
             {: RESULT = new Call(e, id, args, exleft); :}
             | INTEGER:i
-            {: RESULT = new IntegerLiteral(Integer.parseInt(i), ixleft); :};  // TODO: Is this casting correct?
+            {: RESULT = new IntegerLiteral(i, ixleft); :};  // TODO: Is this casting correct?
 
 NonemptyExpList ::= Exp:e
-            {: RESULT = new ExpList(exleft); RESULT.addElement(e); :}
+            {: RESULT = new ExpList(exleft); RESULT.add(e); :}
             | Exp:e COMMA ExpList:es
-            {: RESULT = es; RESULT.addElement(e); :};
+            {: RESULT = es; RESULT.add(e); :};
 
-ExpList ::= NonemptyExpList
-            {: RESULT = NonemptyExpList; :}
+ExpList ::= NonemptyExpList:es
+            {: RESULT = es; :}
             |
-            {: RESULT = new ExpList(0); :};
+            {: RESULT = new ExpList(new Location(0, 0)); :};
 
 Formal ::= Type:t Identifier:id
             {: RESULT = new Formal(t, id, txleft); :};
 
 NonemptyFormalList ::= Formal:f COMMA FormalList:fs
-            {: RESULT = fs; fs.addElement(f); :}
+            {: RESULT = fs; fs.add(f); :}
             | Formal:f
-            {: RESULT = new FormalList(fxleft); RESULT.addElement(f); :};
+            {: RESULT = new FormalList(fxleft); RESULT.add(f); :};
 
 FormalList ::= NonemptyFormalList:fs 
             {: RESULT = fs; :}
             |
-            {: RESULT = new FormalList(0); :};
+            {: RESULT = new FormalList(new Location(0, 0)); :};
 
 ArrayLookup ::= Exp:array LBRACKET Exp:index RBRACKET
             {: RESULT = new ArrayLookup(array, index, arrayxleft); :};

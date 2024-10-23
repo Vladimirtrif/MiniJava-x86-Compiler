@@ -71,20 +71,25 @@ class MiniJava {
     private static int runParserPretty(Reader in) {
         ComplexSymbolFactory sf = new ComplexSymbolFactory();
         scanner s = new scanner(in, sf);
-        parser p = new parser(s, sf);
         Symbol root;
         // replace p.parse() with p.debug_parse() in the next line to see
         // a trace of parser shift/reduce actions during parsing
-        root = p.parse();
-        // We know the following unchecked cast is safe because of the
-        // declarations in the CUP input file giving the type of the
-        // root node, so we suppress warnings for the next assignment.
-        @SuppressWarnings("unchecked")
-        List<Statement> program = (List<Statement>)root.value;
-        for (Statement statement: program) {
-            statement.accept(new PrettyPrintVisitor());
-            System.out.print("\n");
+        try {
+            parser p = new parser(s, sf);
+            root = p.parse();
+            // We know the following unchecked cast is safe because of the
+            // declarations in the CUP input file giving the type of the
+            // root node, so we suppress warnings for the next assignment.
+            @SuppressWarnings("unchecked")
+            List<Statement> program = (List<Statement>)root.value;
+            for (Statement statement: program) {
+                statement.accept(new PrettyPrintVisitor());
+                System.out.print("\n");
+            }
+        } catch (Exception e) {
+            
         }
+        return 0;
     }
 
 
