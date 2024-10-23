@@ -30,7 +30,7 @@ terminal BOOLEAN, INT;
 terminal TRUE, FALSE;
 
 /* etc. */
-terminal THIS, NEW, CLASS, PUBLIC, STATIC, VOID, MAIN, STRING, EXTENDS, RETURN, WHILE, IF, ELSE, DOT, LENGTH, EOF;
+terminal THIS, NEW, CLASS, PUBLIC, STATIC, VOID, MAIN, STRING, EXTENDS, RETURN, WHILE, IF, ELSE, DOT, LENGTH;
 
 /* identifiers */
 terminal int INTEGER;
@@ -71,15 +71,15 @@ nonterminal Identifier Identifier;
 
 precedence nonassoc BECOMES;
 precedence nonassoc AND;
-precedence left LT;
+precedence left LESS;
 precedence left PLUS, MINUS;
-precedence left TIMES;
+precedence left MULT;
 precedence right NOT, NEW;
 precedence left DOT;
 
 /* Productions: */
 
-Program ::= MainClass:c ClassDeclList:cs EOF
+Program ::= MainClass:c ClassDeclList:cs
             {: RESULT = new Program(c, cs, cxleft); :};
 
 MainClass ::= CLASS Identifier:id LBRACE PUBLIC STATIC VOID MAIN LPAREN STRING LBRACKET RBRACKET Identifier:args RPAREN LBRACE Statement:s RBRACE RBRACE
@@ -135,7 +135,7 @@ Exp ::= IDENTIFIER:id
             {: RESULT = new Plus(arg1, arg2, arg1xleft); :}
             | Exp:arg1 MINUS Exp:arg2
             {: RESULT = new Minus(arg1, arg2, arg1xleft); :}
-            | Exp:arg1 TIMES Exp:arg2
+            | Exp:arg1 MULT Exp:arg2
             {: RESULT = new Times(arg1, arg2, arg1xleft); :}
             | Exp:arg1 LESS Exp:arg2
             {: RESULT = new LessThan(arg1, arg2, arg1xleft); :}
@@ -164,7 +164,7 @@ Exp ::= IDENTIFIER:id
             | INTEGER:i
             {: RESULT = new IntegerLiteral(Integer.parseInt(i), ixleft); :};  // TODO: Is this casting correct?
 
-NonemptyExpList ::= Exp e
+NonemptyExpList ::= Exp:e
             {: RESULT = new ExpList(exleft); RESULT.addElement(e); :}
             | Exp:e COMMA ExpList:es
             {: RESULT = es; RESULT.addElement(e); :};
@@ -177,7 +177,7 @@ ExpList ::= NonemptyExpList
 Formal ::= Type:t Identifier:id
             {: RESULT = new Formal(t, id, txleft); :};
 
-NonemptyFormalList ::= Formal:f COMMA FormalParameterList:fs
+NonemptyFormalList ::= Formal:f COMMA FormalList:fs
             {: RESULT = fs; fs.addElement(f); :}
             | Formal:f
             {: RESULT = new FormalList(fxleft); RESULT.addElement(f); :};

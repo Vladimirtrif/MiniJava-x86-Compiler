@@ -21,7 +21,7 @@ class MiniJava {
         boolean is_P = args[0].equals("-P");
         boolean is_A = args[0].equals("-A");
 
-        if (!(is_S && is_P && is_P)) {
+        if (!(is_S || is_P || is_A)) {
             printUsage();
             return;
         }
