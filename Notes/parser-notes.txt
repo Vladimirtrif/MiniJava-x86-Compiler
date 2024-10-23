@@ -1,0 +1,8 @@
+1. Changes made to the grammar:
+    We added non-terminals for parts of the grammar where there were non-terminals on the right hand side could repeat.
+    We did this with right-recursion and all the non-terminals suffixed with "List" were done this way.
+    For example, ExpList in our cup file represents is (Exp)* in the grammar.
+    We also added precendence rules for BECOMES, AND, LESS, PLUS, MINUS, MULT, NOT, NEW, and DOT.
+
+2. How we managed the work
+    We pair programmed in the cse lab together so we did the entire part of this project together in person.
