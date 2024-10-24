@@ -38,6 +38,7 @@ terminal String IDENTIFIER;
 
 
 /* Nonterminals (constructed by parser): */
+
 nonterminal Program Program;
 nonterminal MainClass MainClass;
 
@@ -77,6 +78,7 @@ precedence left MULT;
 precedence right NOT, NEW;
 precedence left DOT;
 
+
 /* Productions: */
 
 Program ::= MainClass:c ClassDeclList:cs
@@ -92,7 +94,7 @@ ClassDecl ::= CLASS Identifier:id LBRACE VarDeclList:vs MethodDeclList:ms RBRACE
 
 ClassDeclList ::= ClassDecl:c ClassDeclList:l
             {: RESULT = l; l.add(c); :}
-            |
+            | /* epsilon */
             {: RESULT = new ClassDeclList(new Location(0, 0)); :};
 
 VarDecl ::= Type:t Identifier:id SEMICOLON
@@ -100,7 +102,7 @@ VarDecl ::= Type:t Identifier:id SEMICOLON
 
 VarDeclList ::= VarDeclList:vs VarDecl:v
             {: RESULT = vs; vs.add(v); :}
-            |
+            | /* epsilon */
             {: RESULT = new VarDeclList(new Location(0, 0)); :};
 
 MethodDecl ::= PUBLIC:p Type:t Identifier:id LPAREN FormalList:params RPAREN LBRACE VarDeclList:vs StatementList:ss RETURN Exp:rv SEMICOLON RBRACE
@@ -108,7 +110,7 @@ MethodDecl ::= PUBLIC:p Type:t Identifier:id LPAREN FormalList:params RPAREN LBR
 
 MethodDeclList ::= MethodDecl:m MethodDeclList:l
             {: RESULT = l; l.add(m); :}
-            |
+            | /* epsilon */
             {: RESULT = new MethodDeclList(new Location(0, 0)); :};
 
 Statement ::= Identifier:id BECOMES Exp:e SEMICOLON
@@ -126,7 +128,7 @@ Statement ::= Identifier:id BECOMES Exp:e SEMICOLON
 
 StatementList ::= Statement:s StatementList:ss
             {: RESULT = ss; ss.add(s); :}
-            |
+            | /* epsilon */
             {: RESULT = new StatementList(new Location(0, 0)); :};
 
 Exp ::= IDENTIFIER:id
@@ -162,7 +164,7 @@ Exp ::= IDENTIFIER:id
             | Exp:e DOT Identifier:id LPAREN ExpList:args RPAREN
             {: RESULT = new Call(e, id, args, exleft); :}
             | INTEGER:i
-            {: RESULT = new IntegerLiteral(i, ixleft); :};  // TODO: Is this casting correct?
+            {: RESULT = new IntegerLiteral(i, ixleft); :};
 
 NonemptyExpList ::= Exp:e
             {: RESULT = new ExpList(exleft); RESULT.add(e); :}
@@ -171,7 +173,7 @@ NonemptyExpList ::= Exp:e
 
 ExpList ::= NonemptyExpList:es
             {: RESULT = es; :}
-            |
+            | /* epsilon */
             {: RESULT = new ExpList(new Location(0, 0)); :};
 
 Formal ::= Type:t Identifier:id
@@ -184,7 +186,7 @@ NonemptyFormalList ::= Formal:f COMMA FormalList:fs
 
 FormalList ::= NonemptyFormalList:fs 
             {: RESULT = fs; :}
-            |
+            | /* epsilon */
             {: RESULT = new FormalList(new Location(0, 0)); :};
 
 ArrayLookup ::= Exp:array LBRACKET Exp:index RBRACKET

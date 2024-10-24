@@ -1,8 +1,9 @@
 1. Changes made to the grammar:
-    We added non-terminals for parts of the grammar where there were non-terminals on the right hand side could repeat.
-    We did this with right-recursion and all the non-terminals suffixed with "List" were done this way.
-    For example, ExpList in our cup file represents (Exp)* in the Minijava grammar.
-    We also added precendence rules for BECOMES, AND, LESS, PLUS, MINUS, MULT, NOT, NEW, and DOT.
+    - According to the MiniJava grammar, `Statement` is self-recursive, i.e. `Statement ::= "{" (Statement)* "}"`. We instead enforced `Statement` to be a single, non-epsilon statement, and created an extra non-terminal `StatementList` to parse the Kleene closure of `Statement`. We did the same thing to `ClassDecl` (whose Kleene closure is `ClassDeclList`), `VarDecl` (whose Kleene closure is `VarDeclList`), and `MethodDecl` (whose Kleene closure is `MethodDeclList`). All the Kleene closures were implemented with right-recursive production with an epsilon base case.
+    - For convenience, we defined some helper non-terminals like `Formal` (which parses a type-identifier pair), `ArrayLookup`, and `ArrayLookup`. These terminals merely serve as aliases and do not make the grammar any richer.
+    - We defined other Kleene closure non-terminals like `FormalList` (e.g., a list of function parameters) and `ExpList` (e.g., a list of function arguments). We found it difficult to implement these like how we did with `StatementList` because of commas introduced in-between. We defined `NonemptyExpList` and `NonemtpyExpList` to explicitly parse the non-epsilon Kleene closures first, which mitigates this difficulty.
+    -  We also added precendence rules for BECOMES, AND, LESS, PLUS, MINUS, MULT, NOT, NEW, and DOT. This avoids ambiguity.
+    - Shift-reduce conflict: We aren't aware of any.
 
 2. How we managed the work
-    We pair programmed in the cse lab together so we did the entire part of this project together in person.
+    We pair programmed in the CSE lab together so we did the entire part of this project together in-person.
