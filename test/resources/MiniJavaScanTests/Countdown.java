@@ -1,6 +1,6 @@
-public class Countdown {
+class Countdown {
     public static void main(String[] args) {
-        printCountdown(5);
+        this.printCountdown(5);
     }
 
     public void printCountdown(int n) {

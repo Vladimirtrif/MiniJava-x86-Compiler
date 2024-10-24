@@ -72,29 +72,39 @@ class MiniJava {
         ComplexSymbolFactory sf = new ComplexSymbolFactory();
         scanner s = new scanner(in, sf);
         Symbol root;
-        // replace p.parse() with p.debug_parse() in the next line to see
-        // a trace of parser shift/reduce actions during parsing
+        parser p = new parser(s, sf);
         try {
-            parser p = new parser(s, sf);
             root = p.parse();
-            // We know the following unchecked cast is safe because of the
-            // declarations in the CUP input file giving the type of the
-            // root node, so we suppress warnings for the next assignment.
             @SuppressWarnings("unchecked")
-            List<Statement> program = (List<Statement>)root.value;
-            for (Statement statement: program) {
-                statement.accept(new PrettyPrintVisitor());
-                System.out.print("\n");
-            }
+            Program program = (Program)root.value;
+            program.accept(new PrettyPrintVisitor());
         } catch (Exception e) {
-            
+            System.err.println("Unexpected internal compiler error: " + 
+                        e.toString());
+            e.printStackTrace();
+            return 1;
         }
         return 0;
     }
 
 
     private static int runParserAbstract(Reader in) {
-        return 2;
+        ComplexSymbolFactory sf = new ComplexSymbolFactory();
+        scanner s = new scanner(in, sf);
+        Symbol root;
+        parser p = new parser(s, sf);
+        try {
+            root = p.parse();
+            @SuppressWarnings("unchecked")
+            Program program = (Program)root.value;
+            program.accept(new AbstractPrintVisitor());
+        } catch (Exception e) {
+            System.err.println("Unexpected internal compiler error: " + 
+                        e.toString());
+            e.printStackTrace();
+            return 1;
+        }
+        return 0;
     }
 
 

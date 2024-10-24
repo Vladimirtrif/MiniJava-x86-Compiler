@@ -5,7 +5,7 @@ import AST.*;
 public class AbstractPrintVisitor implements Visitor {
     
     private int indentation;
-    private static final String TAB = "\t";
+    private static final String TAB = "  ";
 
     public AbstractPrintVisitor() {
         super();
@@ -52,8 +52,6 @@ public class AbstractPrintVisitor implements Visitor {
         indentation++;
         n.m.accept(this);
         for (int i = 0; i < n.cl.size(); i++) {
-            println();
-            printIndent();
             n.cl.get(i).accept(this);
         }
         indentation--;
@@ -85,13 +83,9 @@ public class AbstractPrintVisitor implements Visitor {
         indentation++;
         for (int i = 0; i < n.vl.size(); i++) {
             n.vl.get(i).accept(this);
-            println();
         }
         for (int i = 0; i < n.ml.size(); i++) {
             n.ml.get(i).accept(this);
-            if (i != n.ml.size() - 1) {
-                println();
-            }
         }
         indentation--;
     }
@@ -111,13 +105,9 @@ public class AbstractPrintVisitor implements Visitor {
         indentation++;
         for (int i = 0; i < n.vl.size(); i++) {
             n.vl.get(i).accept(this);
-            println();
         }
         for (int i = 0; i < n.ml.size(); i++) {
             n.ml.get(i).accept(this);
-            if (i != n.ml.size() - 1) {
-                println();
-            }
         }
         indentation--;
     }
@@ -126,11 +116,15 @@ public class AbstractPrintVisitor implements Visitor {
     // Identifier i;
     @Override
     public void visit(VarDecl n) {
-        printlnIndent("VarDecl ");
-        n.t.accept(this);
-        printsp();
+        printIndent("VarDecl ");
         n.i.accept(this);
         printLineNumber(n);
+        println();
+        indentation++;
+        printIndent("declType: ");
+        n.t.accept(this);
+        indentation--;
+        printsp();
     }
 
     // Type t;
@@ -141,25 +135,33 @@ public class AbstractPrintVisitor implements Visitor {
     // Exp e;
     @Override
     public void visit(MethodDecl n) {
-        printlnIndent("MethodDecl ");
+        printIndent("MethodDecl ");
         n.i.accept(this);   // e.g., bar
         printLineNumber(n);
+        println();
         indentation++;
-        printIndent("returns ");
+        printIndent("returnType: ");
         n.t.accept(this);   // e.g., int
-        printlnIndent("parameters:");
+        println();
+        printIndent("parameters:\n");
+        indentation++;
         for (int i = 0; i < n.fl.size(); i++) {
-            indentation++;
+            printIndent();
             n.fl.get(i).accept(this);
-            indentation--;
+            println();
         }
+        indentation--;
         for (int i = 0; i < n.sl.size(); i++) {
             n.sl.get(i).accept(this);
         }
         if (n.e != null) {
-            printIndent("Return ");
-            n.e.accept(this);
+            printIndent("Return");
             printLineNumber(n);
+            indentation++;
+            println();
+            printIndent();
+            n.e.accept(this);
+            indentation--;
             println();
         }
         indentation--;
@@ -198,8 +200,9 @@ public class AbstractPrintVisitor implements Visitor {
     // StatementList sl;
     @Override
     public void visit(Block n) {
-        printIndent("Block ");
+        printIndent("Block");
         printLineNumber(n);
+        println();
         indentation++;
         for (int i = 0; i < n.sl.size(); i++) {
             n.sl.get(i).accept(this);
@@ -211,7 +214,7 @@ public class AbstractPrintVisitor implements Visitor {
     // Statement s1,s2;
     @Override
     public void visit(If n) {
-        printIndent("If ");
+        printIndent("If");
         printLineNumber(n);
         println();
         indentation++;
@@ -232,7 +235,7 @@ public class AbstractPrintVisitor implements Visitor {
     // Statement s;
     @Override
     public void visit(While n) {
-        printlnIndent("While ");
+        printIndent("While");
         printLineNumber(n);
         println();
         indentation++;
@@ -246,21 +249,29 @@ public class AbstractPrintVisitor implements Visitor {
     // Exp e;
     @Override
     public void visit(Print n) {
-        printIndent("Print ");
-        n.e.accept(this);
+        printIndent("Print");
         printLineNumber(n);
         println();
+        indentation++;
+        printIndent();
+        n.e.accept(this);
+        println();
+        indentation--;
     }
 
     // Identifier i;
     // Exp e;
     @Override
     public void visit(Assign n) {
-        printIndent("Assign ");
-        n.i.accept(this);
-        print(" = ");
-        n.e.accept(this);
+        printIndent("Assign");
         printLineNumber(n);
+        indentation++;
+        println();
+        printIndent();
+        n.i.accept(this);
+        print(" := ");
+        n.e.accept(this);
+        indentation--;
         println();
     }
 

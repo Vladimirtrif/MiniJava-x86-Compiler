@@ -215,7 +215,7 @@ white = {eol}|[ \t]
 "length" { return symbol(sym.LENGTH); }
 
 /* integers */
-{digit} | {pos_digit}{digit}* { return symbol(sym.INTEGER, yytext()); }
+{digit} | {pos_digit}{digit}* { return symbol(sym.INTEGER, Integer.parseInt(yytext())); }
 
 /* identifiers */
 {letter} ({letter}|{digit}|_)* {
