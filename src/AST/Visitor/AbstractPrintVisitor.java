@@ -124,7 +124,7 @@ public class AbstractPrintVisitor implements Visitor {
         printIndent("declType: ");
         n.t.accept(this);
         indentation--;
-        printsp();
+        println();
     }
 
     // Type t;
@@ -279,13 +279,17 @@ public class AbstractPrintVisitor implements Visitor {
     // Exp e1,e2;
     @Override
     public void visit(ArrayAssign n) {
-        printIndent("ArrayAssign ");
+        printIndent("ArrayAssign");
+        printLineNumber(n);
+        indentation++;
+        println();
+        printIndent();
         n.i.accept(this);
         print("[");
         n.e1.accept(this);
-        print("] = ");
+        print("] := ");
         n.e2.accept(this);
-        printLineNumber(n);
+        indentation--;
         println();
     }
 

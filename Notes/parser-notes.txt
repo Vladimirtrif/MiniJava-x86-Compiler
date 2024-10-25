@@ -3,7 +3,10 @@
     - For convenience, we defined some helper non-terminals like `Formal` (which parses a type-identifier pair), `ArrayLookup`, and `ArrayLookup`. These terminals merely serve as aliases and do not make the grammar any richer.
     - We defined other Kleene closure non-terminals like `FormalList` (e.g., a list of function parameters) and `ExpList` (e.g., a list of function arguments). We found it difficult to implement these like how we did with `StatementList` because of commas introduced in-between. We defined `NonemptyExpList` and `NonemtpyExpList` to explicitly parse the non-epsilon Kleene closures first, which mitigates this difficulty.
     -  We also added precendence rules for BECOMES, AND, LESS, PLUS, MINUS, MULT, NOT, NEW, and DOT. This avoids ambiguity.
-    - Shift-reduce conflict: We aren't aware of any.
+    - Shift-reduce conflict: We aren't aware of any. Ours is too good.
 
-2. How we managed the work
+2. Error Handling
+    Unlike for the scanner where we continue to scan despite erroneous symbols encountered, for the parser we break out of the parsing process immediately if we run into an error.
+
+3. How we managed the work
     We pair programmed in the CSE lab together so we did the entire part of this project together in-person.
