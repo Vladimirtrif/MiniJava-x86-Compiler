@@ -1,0 +1,16 @@
+Part II of the MiniJava compiler project, the parser
+
+TOTAL: 51/60
+Late days used for this assignment: 0
+
+Display ASTNode needed to be manually removed before parser could build. (-2)
+
+Class and method declarations in a class are printed in reverse order. (-1)
+
+Statements within blocks and methods are printed in reverse order. (-2)
+
+Arguments of a method call and parameters of methods are printed in reverse order. (-2)
+
+Array subscripting (i.e. accessing an index of an array) should bind more tightly than binary operators and/or “!”. (-1)
+
+The tree-formatted output (from "-A") does not always print the correct line numbers. (-1)
