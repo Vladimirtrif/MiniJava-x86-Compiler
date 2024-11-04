@@ -52,6 +52,7 @@ nonterminal MethodDecl MethodDecl;
 nonterminal MethodDeclList MethodDeclList;
 
 nonterminal Statement Statement;
+nonterminal StatementList NonemptyStatementList;
 nonterminal StatementList StatementList;
 
 nonterminal Exp Exp;
@@ -76,8 +77,7 @@ precedence left LESS;
 precedence left PLUS, MINUS;
 precedence left MULT;
 precedence right NOT, NEW;
-precedence left DOT;
-
+precedence left DOT, LBRACKET;
 
 /* Productions: */
 
@@ -92,8 +92,8 @@ ClassDecl ::= CLASS Identifier:id LBRACE VarDeclList:vs MethodDeclList:ms RBRACE
             | CLASS Identifier:id EXTENDS Identifier:parent LBRACE VarDeclList:vs MethodDeclList:ms RBRACE
             {: RESULT = new ClassDeclExtends(id, parent, vs, ms, idxleft); :};
 
-ClassDeclList ::= ClassDecl:c ClassDeclList:l
-            {: RESULT = l; l.add(c); :}
+ClassDeclList ::= ClassDeclList:cs ClassDecl:c
+            {: RESULT = cs; cs.add(c); :}
             | /* epsilon */
             {: RESULT = new ClassDeclList(new Location(0, 0)); :};
 
@@ -108,8 +108,8 @@ VarDeclList ::= VarDeclList:vs VarDecl:v
 MethodDecl ::= PUBLIC:p Type:t Identifier:id LPAREN FormalList:params RPAREN LBRACE VarDeclList:vs StatementList:ss RETURN Exp:rv SEMICOLON RBRACE
             {: RESULT = new MethodDecl(t, id, params, vs, ss, rv, idxleft); :};
 
-MethodDeclList ::= MethodDecl:m MethodDeclList:l
-            {: RESULT = l; l.add(m); :}
+MethodDeclList ::= MethodDeclList:ms MethodDecl:m
+            {: RESULT = ms; ms.add(m); :}
             | /* epsilon */
             {: RESULT = new MethodDeclList(new Location(0, 0)); :};
 
@@ -126,8 +126,13 @@ Statement ::= Identifier:id BECOMES Exp:e SEMICOLON
             | LBRACE StatementList:ss RBRACE
             {: RESULT = new Block(ss, ssxleft); :};
 
-StatementList ::= Statement:s StatementList:ss
-            {: RESULT = ss; ss.add(s); :}
+NonemptyStatementList ::= Statement:s
+            {: RESULT = new StatementList(sxleft); RESULT.add(s); :}
+            | NonemptyStatementList:ss Statement:s
+            {: RESULT = ss; RESULT.add(s); :};
+
+StatementList ::= NonemptyStatementList:ss
+            {: RESULT = ss; :}
             | /* epsilon */
             {: RESULT = new StatementList(new Location(0, 0)); :};
 
@@ -168,7 +173,7 @@ Exp ::= IDENTIFIER:id
 
 NonemptyExpList ::= Exp:e
             {: RESULT = new ExpList(exleft); RESULT.add(e); :}
-            | Exp:e COMMA ExpList:es
+            | NonemptyExpList:es COMMA Exp:e
             {: RESULT = es; RESULT.add(e); :};
 
 ExpList ::= NonemptyExpList:es
@@ -179,10 +184,10 @@ ExpList ::= NonemptyExpList:es
 Formal ::= Type:t Identifier:id
             {: RESULT = new Formal(t, id, txleft); :};
 
-NonemptyFormalList ::= Formal:f COMMA FormalList:fs
-            {: RESULT = fs; fs.add(f); :}
-            | Formal:f
-            {: RESULT = new FormalList(fxleft); RESULT.add(f); :};
+NonemptyFormalList ::= Formal:f
+            {: RESULT = new FormalList(fxleft); RESULT.add(f); :}
+            | NonemptyFormalList:fs COMMA Formal:f
+            {: RESULT = fs; fs.add(f); :};
 
 FormalList ::= NonemptyFormalList:fs 
             {: RESULT = fs; :}

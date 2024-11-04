@@ -156,7 +156,7 @@ public class AbstractPrintVisitor implements Visitor {
         }
         if (n.e != null) {
             printIndent("Return");
-            printLineNumber(n);
+            printLineNumber(n.e);
             indentation++;
             println();
             printIndent();
@@ -346,17 +346,21 @@ public class AbstractPrintVisitor implements Visitor {
     // Exp e1,e2;
     @Override
     public void visit(ArrayLookup n) {
+        print("(");
         n.e1.accept(this);
         print("[");
         n.e2.accept(this);
         print("]");
+        print(")");
     }
 
     // Exp e;
     @Override
     public void visit(ArrayLength n) {
+        print("(");
         n.e.accept(this);
         print(".length");
+        print(")");
     }
 
     // Exp e;
@@ -364,6 +368,7 @@ public class AbstractPrintVisitor implements Visitor {
     // ExpList el;
     @Override
     public void visit(Call n) {
+        print("(");
         n.e.accept(this);
         print(".");
         n.i.accept(this);
@@ -374,7 +379,7 @@ public class AbstractPrintVisitor implements Visitor {
                 print(", ");
             }
         }
-        print(")");
+        print("))");
     }
 
     // int i;
@@ -423,8 +428,9 @@ public class AbstractPrintVisitor implements Visitor {
     // Exp e;
     @Override
     public void visit(Not n) {
-        print("!");
+        print("(!");
         n.e.accept(this);
+        print(")");
     }
 
     // String s;
