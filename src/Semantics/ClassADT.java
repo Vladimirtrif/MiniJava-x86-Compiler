@@ -1,16 +1,18 @@
+package Semantics;
+
 public class ClassADT extends SymbolTable implements ADT {
 
 	public String name;
     public String parentName;
     public ClassADT parent = null;
 
-    public ClassADT(String name) {
-        super(SymbolTable.CLASS_DEPTH);
+    public ClassADT(String name, GlobalTable prev) {
+        super(prev);
         this.name = name;
     }
 
-	public ClassADT(String name, String parentName) {
-        this(name);
+	public ClassADT(String name, String parentName, GlobalTable prev) {
+        this(name, prev);
         this.parentName = parentName;
 	}
 

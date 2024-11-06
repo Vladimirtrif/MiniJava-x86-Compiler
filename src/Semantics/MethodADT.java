@@ -1,17 +1,24 @@
+package Semantics;
+
 import java.util.*;
 
 
 public class MethodADT extends SymbolTable implements ADT {
 
-	public String name;
-	public ADT returnType;
-	public List<ADT> paramTypes;
+	public static final String MAIN_METHOD_NAME = "main";
 
-	public MethodADT(String name, ADT returnType, List<ADT> paramTypes) {
-        super(SymbolTable.METHOD_DEPTH);
+	public final String name;
+	public final List<ADT> paramTypes;
+	public final ADT returnType;
+
+	public MethodADT(String name, ADT returnType, ClassADT prev) {
+		super(prev);
 		this.name = name;
-		this.returnType = returnType;
-		this.paramTypes = paramTypes;
+		paramTypes = new ArrayList<>();
+	}
+
+	public void addParamType(ADT t) {
+		paramTypes.add(t);
 	}
 
 	@Override

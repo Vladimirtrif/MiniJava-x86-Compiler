@@ -1,7 +1,11 @@
+package Semantics;
+
+
 public class BaseADT implements ADT {
 
-	public static final BaseADT INTEGER = new BaseADT("int");
+	public static final BaseADT INT = new BaseADT("int");
 	public static final BaseADT BOOLEAN = new BaseADT("boolean");
+	public static final BaseADT INT_ARRAY = new BaseADT("int[]");
 
     private final String s;
 

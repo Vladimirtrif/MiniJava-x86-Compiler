@@ -1,3 +1,5 @@
+package Semantics;
+
 public interface ADT {
 
     public boolean same(ADT other);

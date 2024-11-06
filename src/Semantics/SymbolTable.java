@@ -1,5 +1,6 @@
-import java.util.*;
+package Semantics;
 
+import java.util.*;
 
 public class SymbolTable {
 
@@ -9,19 +10,41 @@ public class SymbolTable {
     public static final int METHOD_DEPTH = 2;
 
     private final HashMap<String, ADT> table;
-    private final int depth;
+    public final SymbolTable prev;
+    public final int depth;
 
-    public SymbolTable(int depth) {
+    public SymbolTable() {
         table = new HashMap<>();
-        this.depth = depth;
+        prev = null;
+        depth = 0;
+    }
+
+    public SymbolTable(SymbolTable prev) {
+        table = new HashMap<>();
+        depth = prev.depth + 1;
+        this.prev = prev;
     }
 
     public ADT get(String s) {
         return table.get(s);
     }
 
-    public void put(String s, ADT t) {
+    public ADT deepget(String s) {
+        for (SymbolTable st = this; st != null; st = st.prev) {
+            ADT t = st.get(s);
+            if (t != null) return t;
+        }
+        table.put(s, UndefinedADT.UNDEFINED);
+        return UndefinedADT.UNDEFINED;
+    }
+
+    public boolean put(String s, ADT t) {
+        boolean error = this.get(s) != null;
+        if (error) {
+            System.out.println(s + " is already declared.");
+        }
         table.put(s, t);
+        return error;
     }
 
     public String tableToString() {
