@@ -106,7 +106,7 @@ public class MethodTableVisitor implements Visitor {
 
         // Formal is probably a method parameter
         if (st instanceof MethodADT m) {
-            m.paramTypes.add(t);
+            m.addParamType(t);
         }
     }
 

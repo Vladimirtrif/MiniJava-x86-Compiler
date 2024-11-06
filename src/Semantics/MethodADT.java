@@ -2,7 +2,6 @@ package Semantics;
 
 import java.util.*;
 
-
 public class MethodADT extends SymbolTable implements ADT {
 
 	public static final String MAIN_METHOD_NAME = "main";
@@ -15,6 +14,7 @@ public class MethodADT extends SymbolTable implements ADT {
 		super(prev);
 		this.name = name;
 		paramTypes = new ArrayList<>();
+		this.returnType = returnType;
 	}
 
 	public void addParamType(ADT t) {
