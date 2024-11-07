@@ -4,11 +4,18 @@ import AST.*;
 import AST.Visitor.Visitor;
 import Semantics.*;
 
-public class ClassTableVisitor implements Visitor {
+/**
+ * 1st pass of symbol table construction. Does three things:
+ * (1) Constructs one global table.
+ * (2) Constructs a class table for every defined class.
+ * (3) Links every class table to the global table.
+ * (4) Checks for duplicate class declarations.
+ */
+public class P1TableVisitor implements Visitor {
     private final GlobalTable global;
     private boolean error;
 
-    public ClassTableVisitor() {
+    public P1TableVisitor() {
         global = new GlobalTable();
         error = false;
     }

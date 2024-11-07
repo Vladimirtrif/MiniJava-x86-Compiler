@@ -4,12 +4,21 @@ import AST.*;
 import AST.Visitor.Visitor;
 import Semantics.*;
 
-public class MethodTableVisitor implements Visitor {
+/**
+ * 2nd and last pass of symbol table construction. Does six things:
+ * (1) For every extending class, checks whether its superclass is defined in the global table.
+ * (2) Constructs a method table for every method.
+ * (3) Links every method table to its owner class.
+ * (4) Converts the AST type of every parameter/variable into its ADT-equivalent.
+ * (5) Links every parameter/variable to its owner method.
+ * (6) Checks for duplicate method/parameter/variable declarations.
+ */
+public class P2TableVisitor implements Visitor {
     private final SymbolTable global;
     private SymbolTable st;
     private boolean error;
 
-    public MethodTableVisitor(GlobalTable st) {
+    public P2TableVisitor(GlobalTable st) {
         global = st;
         this.st = st;
         error = false;
@@ -65,8 +74,9 @@ public class MethodTableVisitor implements Visitor {
             printErrorForUndefined(parentName, n.line_number);
             error = true;
         }
-
-        st = (ClassADT) st.get(n.i.s);  // Set scope to class
+        ClassADT c = (ClassADT) st.get(n.i.s);
+        c.parent = (ClassADT) parent;
+        st = c;  // Set scope to class
         // Class fields
         for (int i = 0; i < n.vl.size(); i++) {
 			n.vl.get(i).accept(this);
