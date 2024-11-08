@@ -1,12 +1,15 @@
 package Semantics;
 
-public interface ADT {
 
-    public boolean same(ADT other);
+public abstract class ADT {
+
+    public TableADT prev = null;
+
+    public abstract boolean same(ADT o);
     
-    public boolean assignable(ADT other);
+    public abstract boolean assignable(ADT o);
 
     @Override
-    public String toString();
+    public abstract String toString();
 
 }

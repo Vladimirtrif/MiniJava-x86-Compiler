@@ -12,19 +12,20 @@ import Semantics.*;
  * (4) Converts the AST type of every parameter/variable into its ADT-equivalent.
  * (5) Links every parameter/variable to its owner method.
  * (6) Checks for duplicate method/parameter/variable declarations.
+ * ! Semantic visitors are meant to be run in order.
  */
 public class P2TableVisitor implements Visitor {
-    private final SymbolTable global;
-    private SymbolTable st;
+    private final GlobalADT global;
+    private TableADT st;
     private boolean error;
 
-    public P2TableVisitor(GlobalTable st) {
-        global = st;
-        this.st = st;
+    public P2TableVisitor(GlobalADT global) {
+        this.global = global;
+        st = global;
         error = false;
     }
 
-    public SymbolTable getGlobalTable() {
+    public TableADT getGlobalTable() {
         return st;
     }
 
@@ -32,8 +33,16 @@ public class P2TableVisitor implements Visitor {
         return error;
     }
 
+    private void printError(String message) {
+        error = true;
+        System.out.println(message);
+    }
+
     private void printErrorForUndefined(String name, int lineNumber) {
-        System.out.println("Error at line " + lineNumber + ": " + name + " is not defined.");
+        printError(
+            "UndefinedIdentifierException: class " + name
+            + " at line " + lineNumber + " is not defined."
+        );
     }
 
     @Override
@@ -48,14 +57,14 @@ public class P2TableVisitor implements Visitor {
     public void visit(MainClass n) {
         // ! Ignores n.i2.s (String[] args) entirely
         String name = n.i1.s;
-        ClassADT c = (ClassADT) (st.get(name));
+        ClassADT c = global.get(name);
         MethodADT m = new MethodADT(MethodADT.MAIN_METHOD_NAME, VoidADT.VOID, c);
-        c.put(name, m);
+        error = error || c.put(name, m);
     }
 
     @Override
     public void visit(ClassDeclSimple n) {
-        st = (ClassADT) st.get(n.i.s);
+        st = global.get(n.i.s);
 		for (int i = 0; i < n.vl.size(); i++) {
 			n.vl.get(i).accept(this);
 		}
@@ -69,14 +78,13 @@ public class P2TableVisitor implements Visitor {
     public void visit(ClassDeclExtends n) {
         // Check if parent class is defined
         String parentName = n.j.s;
-        ADT parent = st.get(parentName);
-        if (parent.same(UndefinedADT.UNDEFINED)) {
+        ClassADT parent = global.getOrDeclare(parentName);
+        if (parent == null) {
             printErrorForUndefined(parentName, n.line_number);
-            error = true;
         }
-        ClassADT c = (ClassADT) st.get(n.i.s);
-        c.parent = (ClassADT) parent;
-        st = c;  // Set scope to class
+        ClassADT c = global.get(n.i.s);
+        c.parent = parent;
+        st = c;         // Set scope to class
         // Class fields
         for (int i = 0; i < n.vl.size(); i++) {
 			n.vl.get(i).accept(this);
@@ -85,7 +93,7 @@ public class P2TableVisitor implements Visitor {
         for (int i = 0; i < n.ml.size(); i++) {
 			n.ml.get(i).accept(this);
 		}
-        st = st.prev;                   // Set scope back to global
+        st = st.prev;   // Set scope back to global
     }
 
     @Override
@@ -112,9 +120,10 @@ public class P2TableVisitor implements Visitor {
     public void visit(Formal n) {
         String name = n.i.s;
         ADT t = convertToADT(n.t);
+        t.prev = st;
         error = error || st.put(name, t);
 
-        // Formal is probably a method parameter
+        // Formal is (probably) a method parameter
         if (st instanceof MethodADT m) {
             m.addParamType(t);
         }
@@ -124,6 +133,7 @@ public class P2TableVisitor implements Visitor {
     public void visit(VarDecl n) {
         String name = n.i.s;
         ADT t = convertToADT(n.t);
+        t.prev = st;
         error = error || st.put(name, t);
     }
 
@@ -136,150 +146,148 @@ public class P2TableVisitor implements Visitor {
             return BaseADT.INT_ARRAY;
         } else if (t instanceof AST.IdentifierType it) {
             String className = it.s;
-            ADT res = global.deepget(className);
-            if (res.same(UndefinedADT.UNDEFINED)) {
+            ADT res = global.getOrDeclare(className);
+            if (res == null) {
                 printErrorForUndefined(className, it.line_number);
-                error = true;
             }
+            return global.get(className);
         }
-        System.out.println("Unreachable code in convertToADT.");
-        error = true;
-        return null;
+        throw new IllegalStateException("Unreachable code.");
     }
 
     @Override
     public void visit(IntArrayType n) {
-        throw new UnsupportedOperationException("Unreachable code.");
+        throw new IllegalStateException("Unreachable code.");
     }
 
     @Override
     public void visit(BooleanType n) {
-        throw new UnsupportedOperationException("Unreachable code.");
+        throw new IllegalStateException("Unreachable code.");
     }
 
     @Override
     public void visit(IntegerType n) {
-        throw new UnsupportedOperationException("Unreachable code.");
+        throw new IllegalStateException("Unreachable code.");
     }
 
     @Override
     public void visit(IdentifierType n) {
-        throw new UnsupportedOperationException("Unreachable code.");
+        throw new IllegalStateException("Unreachable code.");
     }
 
     @Override
     public void visit(Block n) {
-        throw new UnsupportedOperationException("Unreachable code.");
+        throw new IllegalStateException("Unreachable code.");
     }
 
     @Override
     public void visit(If n) {
-        throw new UnsupportedOperationException("Unreachable code.");
+        throw new IllegalStateException("Unreachable code.");
     }
 
     @Override
     public void visit(While n) {
-        throw new UnsupportedOperationException("Unreachable code.");
+        throw new IllegalStateException("Unreachable code.");
     }
 
     @Override
     public void visit(Print n) {
-        throw new UnsupportedOperationException("Unreachable code.");
+        throw new IllegalStateException("Unreachable code.");
     }
 
     @Override
     public void visit(Assign n) {
-        throw new UnsupportedOperationException("Unreachable code.");
+        throw new IllegalStateException("Unreachable code.");
     }
 
     @Override
     public void visit(ArrayAssign n) {
-        throw new UnsupportedOperationException("Unreachable code.");
+        throw new IllegalStateException("Unreachable code.");
     }
 
     @Override
     public void visit(And n) {
-        throw new UnsupportedOperationException("Unreachable code.");
+        throw new IllegalStateException("Unreachable code.");
     }
 
     @Override
     public void visit(LessThan n) {
-        throw new UnsupportedOperationException("Unreachable code.");
+        throw new IllegalStateException("Unreachable code.");
     }
 
     @Override
     public void visit(Plus n) {
-        throw new UnsupportedOperationException("Unreachable code.");
+        throw new IllegalStateException("Unreachable code.");
     }
 
     @Override
     public void visit(Minus n) {
-        throw new UnsupportedOperationException("Unreachable code.");
+        throw new IllegalStateException("Unreachable code.");
     }
 
     @Override
     public void visit(Times n) {
-        throw new UnsupportedOperationException("Unreachable code.");
+        throw new IllegalStateException("Unreachable code.");
     }
 
     @Override
     public void visit(ArrayLookup n) {
-        throw new UnsupportedOperationException("Unreachable code.");
+        throw new IllegalStateException("Unreachable code.");
     }
 
     @Override
     public void visit(ArrayLength n) {
-        throw new UnsupportedOperationException("Unreachable code.");
+        throw new IllegalStateException("Unreachable code.");
     }
 
     @Override
     public void visit(Call n) {
-        throw new UnsupportedOperationException("Unreachable code.");
+        throw new IllegalStateException("Unreachable code.");
     }
 
     @Override
     public void visit(IntegerLiteral n) {
-        throw new UnsupportedOperationException("Unreachable code.");
+        throw new IllegalStateException("Unreachable code.");
     }
 
     @Override
     public void visit(True n) {
-        throw new UnsupportedOperationException("Unreachable code.");
+        throw new IllegalStateException("Unreachable code.");
     }
 
     @Override
     public void visit(False n) {
-        throw new UnsupportedOperationException("Unreachable code.");
+        throw new IllegalStateException("Unreachable code.");
     }
 
     @Override
     public void visit(IdentifierExp n) {
-        throw new UnsupportedOperationException("Unreachable code.");
+        throw new IllegalStateException("Unreachable code.");
     }
 
     @Override
     public void visit(This n) {
-        throw new UnsupportedOperationException("Unreachable code.");
+        throw new IllegalStateException("Unreachable code.");
     }
 
     @Override
     public void visit(NewArray n) {
-        throw new UnsupportedOperationException("Unreachable code.");
+        throw new IllegalStateException("Unreachable code.");
     }
 
     @Override
     public void visit(NewObject n) {
-        throw new UnsupportedOperationException("Unreachable code.");
+        throw new IllegalStateException("Unreachable code.");
     }
 
     @Override
     public void visit(Not n) {
-        throw new UnsupportedOperationException("Unreachable code.");
+        throw new IllegalStateException("Unreachable code.");
     }
 
     @Override
     public void visit(Identifier n) {
-        throw new UnsupportedOperationException("Unreachable code.");
+        throw new IllegalStateException("Unreachable code.");
     }
 
 }

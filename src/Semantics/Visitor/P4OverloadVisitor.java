@@ -2,11 +2,81 @@ package Semantics.Visitor;
 
 import AST.*;
 import AST.Visitor.Visitor;
+import Semantics.*;
+import java.util.*;
 
-public class P6TypeCheckVisitor implements Visitor {
+/**
+ * Invalidates method overloads but not overrides.
+ * ! Semantic visitors are meant to be run in order.
+ */
+public class P4OverloadVisitor implements Visitor {
+
+    private final GlobalADT global;
+    private boolean error;
+
+    public P4OverloadVisitor(GlobalADT global) {
+        this.global = global;
+        error = false;
+    }
+
+    public boolean getError() {
+        return error;
+    }
+
+    private void printError(String message) {
+        error = true;
+        System.out.println(message);
+    }
 
     @Override
     public void visit(Program n) {
+        Set<ClassADT> leafs = new HashSet<>();
+
+        // Add all potential leaf classes
+        for (int i = 0; i < n.cl.size(); i++) {
+            if (n.cl.get(i) instanceof ClassDeclExtends c) {
+                ClassADT maybeLeaf = global.get(c.j.s);
+                leafs.add(maybeLeaf);
+            }
+        }
+
+        // Remove all non-leaf classes
+        for (int i = 0; i < n.cl.size(); i++) {
+            if (n.cl.get(i) instanceof ClassDeclExtends c) {
+                ClassADT nonLeaf = global.get(c.j.s);
+                if (leafs.contains(nonLeaf))
+                    leafs.remove(nonLeaf);
+            }
+        }
+
+        // Visit every leaf class
+        for (ClassADT leaf : leafs) {
+            checkOverload(leaf);
+        }
+    }
+
+    private void checkOverload(ClassADT cl) {
+        Map<String, MethodADT> visited = new HashMap<>();
+        for (ClassADT c = cl; c != null; c = c.parent) {
+            for (String name : c.methodNames()) {
+                MethodADT method = c.getMethod(name);
+                if (visited.containsKey(name)) {
+                    MethodADT oldMethod = visited.get(name);
+                    // Two methods with the same name and different types
+                    if (!method.same(oldMethod)) {
+                        printError(
+                            "OverloadError: " + method + " at " + c.name
+                            + " illegally overloads " + oldMethod + " at " + oldMethod.getClassADT().name + "."
+                        );
+                    }
+                }
+                visited.put(name, method);
+            }
+        }
+    }
+
+    @Override
+    public void visit(ClassDeclExtends n) {
         throw new UnsupportedOperationException("Unreachable code.");
     }
 
@@ -21,17 +91,12 @@ public class P6TypeCheckVisitor implements Visitor {
     }
 
     @Override
-    public void visit(ClassDeclExtends n) {
+    public void visit(MethodDecl n) {
         throw new UnsupportedOperationException("Unreachable code.");
     }
 
     @Override
     public void visit(VarDecl n) {
-        throw new UnsupportedOperationException("Unreachable code.");
-    }
-
-    @Override
-    public void visit(MethodDecl n) {
         throw new UnsupportedOperationException("Unreachable code.");
     }
 

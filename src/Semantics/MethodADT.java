@@ -2,9 +2,9 @@ package Semantics;
 
 import java.util.*;
 
-public class MethodADT extends SymbolTable implements ADT {
+public class MethodADT extends TableADT {
 
-	public static final String MAIN_METHOD_NAME = "main";
+	public static final String MAIN_METHOD_NAME = "0";
 
 	public final String name;
 	public final List<ADT> paramTypes;
@@ -17,12 +17,17 @@ public class MethodADT extends SymbolTable implements ADT {
 		this.returnType = returnType;
 	}
 
+	public ClassADT getClassADT() {
+		return (ClassADT) this.prev;
+	}
+
 	public void addParamType(ADT t) {
 		paramTypes.add(t);
 	}
 
 	@Override
 	public boolean same(ADT o) {
+		// Check MethodADT, paramTypes, and returnType
 		if (!(o instanceof MethodADT oo))
 			return false;
 		if (paramTypes.size() != oo.paramTypes.size())
@@ -41,8 +46,7 @@ public class MethodADT extends SymbolTable implements ADT {
 
 	@Override
 	public String toString() {
-        // TODO
-        throw new UnsupportedOperationException();
+		return "<method '" + name + "'>";
 	}
 
 }

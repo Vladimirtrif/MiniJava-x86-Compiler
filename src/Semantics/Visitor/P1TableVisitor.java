@@ -10,17 +10,19 @@ import Semantics.*;
  * (2) Constructs a class table for every defined class.
  * (3) Links every class table to the global table.
  * (4) Checks for duplicate class declarations.
+ * ! Semantic visitors are meant to be run in order.
  */
 public class P1TableVisitor implements Visitor {
-    private final GlobalTable global;
+
+    private final GlobalADT global;
     private boolean error;
 
     public P1TableVisitor() {
-        global = new GlobalTable();
+        global = new GlobalADT();
         error = false;
     }
 
-    public SymbolTable getGlobalTable() {
+    public GlobalADT getGlobalADT() {
         return global;
     }
 
@@ -53,156 +55,159 @@ public class P1TableVisitor implements Visitor {
 
     private void makeClass(String name, String parentName) {
         ADT t = new ClassADT(name, parentName, global);
+        if (global.put(name, t)) {
+            error = true;
+        }
         error = error || global.put(name, t);
     }
 
     @Override
     public void visit(VarDecl n) {
-        throw new UnsupportedOperationException("Unreachable code.");
+        throw new IllegalStateException("Unreachable code.");
     }
 
     @Override
     public void visit(MethodDecl n) {
-        throw new UnsupportedOperationException("Unreachable code.");
+        throw new IllegalStateException("Unreachable code.");
     }
 
     @Override
     public void visit(Formal n) {
-        throw new UnsupportedOperationException("Unreachable code.");
+        throw new IllegalStateException("Unreachable code.");
     }
 
     @Override
     public void visit(IntArrayType n) {
-        throw new UnsupportedOperationException("Unreachable code.");
+        throw new IllegalStateException("Unreachable code.");
     }
 
     @Override
     public void visit(BooleanType n) {
-        throw new UnsupportedOperationException("Unreachable code.");
+        throw new IllegalStateException("Unreachable code.");
     }
 
     @Override
     public void visit(IntegerType n) {
-        throw new UnsupportedOperationException("Unreachable code.");
+        throw new IllegalStateException("Unreachable code.");
     }
 
     @Override
     public void visit(IdentifierType n) {
-        throw new UnsupportedOperationException("Unreachable code.");
+        throw new IllegalStateException("Unreachable code.");
     }
 
     @Override
     public void visit(Block n) {
-        throw new UnsupportedOperationException("Unreachable code.");
+        throw new IllegalStateException("Unreachable code.");
     }
 
     @Override
     public void visit(If n) {
-        throw new UnsupportedOperationException("Unreachable code.");
+        throw new IllegalStateException("Unreachable code.");
     }
 
     @Override
     public void visit(While n) {
-        throw new UnsupportedOperationException("Unreachable code.");
+        throw new IllegalStateException("Unreachable code.");
     }
 
     @Override
     public void visit(Print n) {
-        throw new UnsupportedOperationException("Unreachable code.");
+        throw new IllegalStateException("Unreachable code.");
     }
 
     @Override
     public void visit(Assign n) {
-        throw new UnsupportedOperationException("Unreachable code.");
+        throw new IllegalStateException("Unreachable code.");
     }
 
     @Override
     public void visit(ArrayAssign n) {
-        throw new UnsupportedOperationException("Unreachable code.");
+        throw new IllegalStateException("Unreachable code.");
     }
 
     @Override
     public void visit(And n) {
-        throw new UnsupportedOperationException("Unreachable code.");
+        throw new IllegalStateException("Unreachable code.");
     }
 
     @Override
     public void visit(LessThan n) {
-        throw new UnsupportedOperationException("Unreachable code.");
+        throw new IllegalStateException("Unreachable code.");
     }
 
     @Override
     public void visit(Plus n) {
-        throw new UnsupportedOperationException("Unreachable code.");
+        throw new IllegalStateException("Unreachable code.");
     }
 
     @Override
     public void visit(Minus n) {
-        throw new UnsupportedOperationException("Unreachable code.");
+        throw new IllegalStateException("Unreachable code.");
     }
 
     @Override
     public void visit(Times n) {
-        throw new UnsupportedOperationException("Unreachable code.");
+        throw new IllegalStateException("Unreachable code.");
     }
 
     @Override
     public void visit(ArrayLookup n) {
-        throw new UnsupportedOperationException("Unreachable code.");
+        throw new IllegalStateException("Unreachable code.");
     }
 
     @Override
     public void visit(ArrayLength n) {
-        throw new UnsupportedOperationException("Unreachable code.");
+        throw new IllegalStateException("Unreachable code.");
     }
 
     @Override
     public void visit(Call n) {
-        throw new UnsupportedOperationException("Unreachable code.");
+        throw new IllegalStateException("Unreachable code.");
     }
 
     @Override
     public void visit(IntegerLiteral n) {
-        throw new UnsupportedOperationException("Unreachable code.");
+        throw new IllegalStateException("Unreachable code.");
     }
 
     @Override
     public void visit(True n) {
-        throw new UnsupportedOperationException("Unreachable code.");
+        throw new IllegalStateException("Unreachable code.");
     }
 
     @Override
     public void visit(False n) {
-        throw new UnsupportedOperationException("Unreachable code.");
+        throw new IllegalStateException("Unreachable code.");
     }
 
     @Override
     public void visit(IdentifierExp n) {
-        throw new UnsupportedOperationException("Unreachable code.");
+        throw new IllegalStateException("Unreachable code.");
     }
 
     @Override
     public void visit(This n) {
-        throw new UnsupportedOperationException("Unreachable code.");
+        throw new IllegalStateException("Unreachable code.");
     }
 
     @Override
     public void visit(NewArray n) {
-        throw new UnsupportedOperationException("Unreachable code.");
+        throw new IllegalStateException("Unreachable code.");
     }
 
     @Override
     public void visit(NewObject n) {
-        throw new UnsupportedOperationException("Unreachable code.");
+        throw new IllegalStateException("Unreachable code.");
     }
 
     @Override
     public void visit(Not n) {
-        throw new UnsupportedOperationException("Unreachable code.");
+        throw new IllegalStateException("Unreachable code.");
     }
 
     @Override
     public void visit(Identifier n) {
-        throw new UnsupportedOperationException("Unreachable code.");
+        throw new IllegalStateException("Unreachable code.");
     }
 }

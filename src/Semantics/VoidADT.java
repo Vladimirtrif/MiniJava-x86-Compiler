@@ -1,13 +1,8 @@
 package Semantics;
 
-public class VoidADT implements ADT {
+public class VoidADT extends ADT {
 
 	public static final VoidADT VOID = new VoidADT();
-
-	@Override
-	public String toString() {
-		return "void";
-	}
 
 	@Override
 	public boolean same(ADT other) {
@@ -17,6 +12,11 @@ public class VoidADT implements ADT {
 	@Override
 	public boolean assignable(ADT other) {
 		return this == other;
+	}
+
+	@Override
+	public String toString() {
+		return "void";
 	}
 
 }

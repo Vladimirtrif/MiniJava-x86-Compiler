@@ -1,7 +1,7 @@
 package Semantics;
 
 
-public class BaseADT implements ADT {
+public class BaseADT extends ADT {
 
 	public static final BaseADT INT = new BaseADT("int");
 	public static final BaseADT BOOLEAN = new BaseADT("boolean");
