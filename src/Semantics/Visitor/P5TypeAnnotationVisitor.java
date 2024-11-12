@@ -11,21 +11,9 @@ public class P5TypeAnnotationVisitor implements Visitor {
 
     private final GlobalADT global;
     private TableADT st;
-    private boolean error;
-
     public P5TypeAnnotationVisitor(GlobalADT global) {
         this.global = global;
         this.st = global;
-        error = false;
-    }
-
-    public boolean getError() {
-        return error;
-    }
-
-    private void printError(String message) {
-        error = true;
-        System.out.println(message);
     }
 
     @Override
@@ -150,7 +138,7 @@ public class P5TypeAnnotationVisitor implements Visitor {
     public void visit(IdentifierType n) {
         //set to correct class type
         n.type = global.get(n.s);
-        //check if null (ie class doesn't exist), set to undefined if class doesn't exist
+        //check if null (ie class doesn't exist), and set to undefined if class doesn't exist
         if(n.type == null) {
             n.type = UndefinedADT.UNDEFINED;
         }
@@ -263,7 +251,20 @@ public class P5TypeAnnotationVisitor implements Visitor {
 
     @Override
     public void visit(Call n) {
-
+        //visit e in e.i(el)
+        n.e.accept(this);
+        //visit i in e.i(el)
+        n.i.accept(this);
+        //visit all parameters
+        for(int i = 0; i < n.el.size(); i++) {
+            n.el.get(i).accept(this);
+        }
+        //give the call the return type of the method called if possible, otherwise set to undefined
+        try {
+            n.type = ((MethodADT)n.i.type).returnType;
+        } catch (ClassCastException e) {
+            n.type = UndefinedADT.UNDEFINED;
+        }
     }
 
     @Override
@@ -288,17 +289,32 @@ public class P5TypeAnnotationVisitor implements Visitor {
 
     @Override
     public void visit(This n) {
-        throw new UnsupportedOperationException("Unreachable code.");
+        //set type of 'this' to the class it is used in or if it's outside of scope somehow to undefined
+        if(st instanceof ClassADT) {
+            n.type = st;
+        } else {
+            n.type = UndefinedADT.UNDEFINED;
+        }
     }
 
     @Override
     public void visit(NewArray n) {
-        throw new UnsupportedOperationException("Unreachable code.");
+        //visit expression inside brackets (should be int)
+        n.e.accept(this);
+        //mark node as int array type
+        n.type = BaseADT.INT_ARRAY;
     }
 
     @Override
     public void visit(NewObject n) {
-        throw new UnsupportedOperationException("Unreachable code.");
+        //visit identifier
+        n.i.accept(this);
+        //set type to the type of id if class, otherwise set to undefined
+        try {
+            n.type = (ClassADT)n.i.type;
+        } catch (ClassCastException e) {
+            n.type = UndefinedADT.UNDEFINED;
+        }
     }
 
     @Override
@@ -311,5 +327,17 @@ public class P5TypeAnnotationVisitor implements Visitor {
     public void visit(Identifier n) {
         throw new UnsupportedOperationException("Unreachable code.");
     }
+
+   /* private MethodADT searchForMethod(String s) {
+
+    }
+
+    private ClassADT searchForMethod(String s) {
+
+    }
+
+    private BaseADT  searchForMethod(String s) {
+
+    }*/
 
 }
