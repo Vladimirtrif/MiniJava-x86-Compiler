@@ -2,10 +2,7 @@ package Semantics.Visitor;
 
 import AST.*;
 import AST.Visitor.Visitor;
-import Semantics.BaseADT;
-import Semantics.ClassADT;
-import Semantics.GlobalADT;
-import Semantics.TableADT;
+import Semantics.*;
 
 import java.util.HashSet;
 import java.util.Set;
@@ -151,7 +148,12 @@ public class P5TypeAnnotationVisitor implements Visitor {
 
     @Override
     public void visit(IdentifierType n) {
-        throw new UnsupportedOperationException("Unreachable code.");
+        //set to correct class type
+        n.type = global.get(n.s);
+        //check if null (ie class doesn't exist), set to undefined if class doesn't exist
+        if(n.type == null) {
+            n.type = UndefinedADT.UNDEFINED;
+        }
     }
 
     @Override
@@ -190,12 +192,22 @@ public class P5TypeAnnotationVisitor implements Visitor {
 
     @Override
     public void visit(Assign n) {
-        throw new UnsupportedOperationException("Unreachable code.");
+        //visit left side of assign
+       n.i.accept(this);
+       //visit right side
+        n.e.accept(this);
+        //leave assign type as undefined
     }
 
     @Override
     public void visit(ArrayAssign n) {
-        throw new UnsupportedOperationException("Unreachable code.");
+        //visit array id (should be int)
+        n.i.accept(this);
+        //visit index expression (again should be int)
+        n.e1.accept(this);
+        //visit right side of equals exp (again should be int)
+        n.e2.accept(this);
+        //leave assign type as undefined
     }
 
     @Override
@@ -251,7 +263,7 @@ public class P5TypeAnnotationVisitor implements Visitor {
 
     @Override
     public void visit(Call n) {
-        throw new UnsupportedOperationException("Unreachable code.");
+
     }
 
     @Override
