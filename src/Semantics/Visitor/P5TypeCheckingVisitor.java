@@ -4,14 +4,11 @@ import AST.*;
 import AST.Visitor.Visitor;
 import Semantics.*;
 
-import java.util.HashSet;
-import java.util.Set;
-
-public class P5TypeAnnotationVisitor implements Visitor {
+public class P5TypeCheckingVisitor implements Visitor {
 
     private final GlobalADT global;
     private TableADT st;
-    public P5TypeAnnotationVisitor(GlobalADT global) {
+    public P5TypeCheckingVisitor(GlobalADT global) {
         this.global = global;
         this.st = global;
     }
@@ -106,6 +103,9 @@ public class P5TypeAnnotationVisitor implements Visitor {
         }
         //visit return expression
         n.e.accept(this);
+
+        //set table back
+        st = st.prev;
 
     }
 
@@ -253,8 +253,16 @@ public class P5TypeAnnotationVisitor implements Visitor {
     public void visit(Call n) {
         //visit e in e.i(el)
         n.e.accept(this);
-        //visit i in e.i(el)
-        n.i.accept(this);
+        if(n.e.type instanceof ClassADT) {
+            //set scope for identifier visit
+            TableADT tmp = st;
+            st = global.get(((ClassADT)n.e.type).name);
+            //annotate i in e.i(el) (without using visitor pattern)
+            n.i.type = searchForMethod(n.i.s);
+            //fix scope
+            st = tmp;
+        }
+
         //visit all parameters
         for(int i = 0; i < n.el.size(); i++) {
             n.el.get(i).accept(this);
@@ -284,7 +292,7 @@ public class P5TypeAnnotationVisitor implements Visitor {
 
     @Override
     public void visit(IdentifierExp n) {
-        throw new UnsupportedOperationException("Unreachable code.");
+        n.type = searchForVar(n.s);
     }
 
     @Override
@@ -321,23 +329,41 @@ public class P5TypeAnnotationVisitor implements Visitor {
     public void visit(Not n) {
         n.type = BaseADT.BOOLEAN;
         n.e.accept(this);
+
     }
 
     @Override
     public void visit(Identifier n) {
-        throw new UnsupportedOperationException("Unreachable code.");
+        n.type = searchForVar(n.s);
     }
 
-   /* private MethodADT searchForMethod(String s) {
-
+    private ADT searchForMethod(String s) {
+        ClassADT tmp = (ClassADT) st;
+        while(tmp != null) {
+            ADT result = tmp.get(s);
+            if(result != null) {
+                return result;
+            }
+            tmp = tmp.parent;
+        }
+        return UndefinedADT.UNDEFINED;
     }
 
-    private ClassADT searchForMethod(String s) {
-
+    private ADT searchForVar(String s) {
+        //search method scope for var decl
+        if(((MethodADT) st).get(s) != null) {
+            return ((MethodADT) st).get(s);
+        }
+        //search class and parent classes for fields
+        ClassADT tmp = (ClassADT) st.prev;
+        while(tmp != null) {
+            ADT result = tmp.getField(s);
+            if(result != null) {
+                return result;
+            }
+            tmp = tmp.parent;
+        }
+        return UndefinedADT.UNDEFINED;
     }
-
-    private BaseADT  searchForMethod(String s) {
-
-    }*/
 
 }
