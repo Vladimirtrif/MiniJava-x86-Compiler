@@ -29,9 +29,10 @@ public class P5TypeCheckingVisitor implements Visitor {
             }
         }
         catch (IllegalStateException e) {
-            for(String s : this.errors) {
-                System.err.println(s);
-            }
+            //do nothing, just used to jump out of recursion when we hit max allowable errors
+        }
+        for(String s : this.errors) {
+            System.err.println(s);
         }
     }
 
