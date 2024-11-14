@@ -32,6 +32,7 @@ public class P5TypeCheckingVisitor implements Visitor {
         // ! Ignores n.i2.s (String[] args) entirely
         //visit main method body
         n.s.accept(this);
+        //fix scope
         st = st.prev;
     }
 
@@ -54,7 +55,7 @@ public class P5TypeCheckingVisitor implements Visitor {
 
     @Override
     public void visit(ClassDeclExtends n) {
-        //same code as regular class decl, will use backup if needed later
+        //same code as regular class decl
         //set current symbol table/scope to current class
         st = global.get(n.i.s);
         //annotate class
@@ -329,19 +330,37 @@ public class P5TypeCheckingVisitor implements Visitor {
     public void visit(Call n) {
         //visit e in e.i(el)
         n.e.accept(this);
-        if(n.e.type instanceof ClassADT) {
-            //set scope for identifier visit
-            TableADT tmp = st;
-            st = global.get(((ClassADT)n.e.type).name);
-            //annotate i in e.i(el) (without using visitor pattern)
-            n.i.type = searchForMethod(n.i.s);
-            //fix scope
-            st = tmp;
+        //check that e evaluates to a class ADT
+        if(!(n.e.type instanceof ClassADT)) {
+            //if not throw error
+            throw new Error("Invalid type, " + n.e.toString() + " must be an instance of a class. In line " + n.line_number);
         }
-
+        //set scope for identifier visit
+        TableADT tmp = st;
+        st = global.get(((ClassADT)n.e.type).name);
+        //annotate i in e.i(el) (without using visitor pattern)
+        n.i.type = searchForMethod(n.i.s);
+        //fix scope
+        st = tmp;
+        //check that we found a method with that name (ie it isn't undefined)
+        if(!(n.i.type instanceof MethodADT)) {
+            //if not throw error
+            throw new Error("No method " + n.i.s + " for " + ((ClassADT) n.e.type).name);
+        }
+        //check number of parameters is correct
+        if(n.el.size() != ((MethodADT) n.i.type).paramTypes.size()) {
+            throw new Error("Incorrect number of parameters on method call line " + n.line_number);
+        }
         //visit all parameters
         for(int i = 0; i < n.el.size(); i++) {
-            n.el.get(i).accept(this);
+            //passed in parameter exp node from exp list
+            Exp tmpParm = n.el.get(i);
+            tmpParm.accept(this);
+            //correct type of param according to method signature
+            ADT parmCorrectType = ((MethodADT)n.i.type).paramTypes.get(i);
+            if(!tmpParm.type.assignable(parmCorrectType)) {
+                throw new Error("Incorrect parameter type on method call line " + n.line_number + ". Expected type " + parmCorrectType.toString() + " but was " + tmpParm.type.toString());
+            }
         }
         //give the call the return type of the method called if possible, otherwise set to undefined
         try {
