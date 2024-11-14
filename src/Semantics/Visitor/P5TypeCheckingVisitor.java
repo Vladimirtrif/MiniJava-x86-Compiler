@@ -97,7 +97,7 @@ public class P5TypeCheckingVisitor implements Visitor {
     @Override
     public void visit(MethodDecl n) {
         //set scope to method table
-        st = (TableADT) st.get(n.i.s);
+        st = ((ClassADT)st).getMethod(n.i.s);
         //annotate method and methodID with signature
         n.type = st;
         n.i.type = st;
@@ -170,7 +170,7 @@ public class P5TypeCheckingVisitor implements Visitor {
 
     @Override
     public void visit(If n) {
-        //leave if node with undefined type
+        //leave "if" node with undefined type
         //visit condition
         n.e.accept(this);
         //typecheck condition
@@ -223,9 +223,9 @@ public class P5TypeCheckingVisitor implements Visitor {
         //visit array id (should be array)
         n.i.accept(this);
         if(!BaseADT.INT_ARRAY.equals(n.i.type)) {
-            addError("Invalid type, " + n.i.toString() + " must be an int. In line " + n.i.line_number);
+            addError("Invalid type, " + n.i.toString() + " must be an int array. In line " + n.i.line_number);
         }
-        //visit index expression (again should be int)
+        //visit index expression (should be int)
         n.e1.accept(this);
         if(!BaseADT.INT.equals(n.e1.type)) {
             addError("Invalid type, " + n.e1.toString() + " must be an int. In line " + n.e1.line_number);
@@ -348,6 +348,10 @@ public class P5TypeCheckingVisitor implements Visitor {
         if(!(n.e.type instanceof ClassADT)) {
             //if not throw error
             addError("Invalid type, " + n.e.toString() + " must be an instance of a class. In line " + n.line_number);
+            //set type to undefined since we don't know what the method returns
+            n.type = UndefinedADT.UNDEFINED;
+            //return since we can't really typecheck method if we don't know which class it is for
+            return;
         }
         //set scope for identifier visit
         TableADT tmp = st;
@@ -360,10 +364,16 @@ public class P5TypeCheckingVisitor implements Visitor {
         if(!(n.i.type instanceof MethodADT)) {
             //if not throw error
             addError("No method " + n.i.s + " for " + ((ClassADT) n.e.type).name);
+            //set type to undefined since we don't know what the method returns
+            n.type = UndefinedADT.UNDEFINED;
+            //return since we can't checl params if it isn't methodADT
+            return;
         }
         //check number of parameters is correct
         if(n.el.size() != ((MethodADT) n.i.type).paramTypes.size()) {
             addError("Incorrect number of parameters on method call line " + n.line_number);
+            //return since it doesn't make sense to typecheck parameters if we don't have right number as input
+            return;
         }
         //visit all parameters
         for(int i = 0; i < n.el.size(); i++) {
@@ -376,12 +386,8 @@ public class P5TypeCheckingVisitor implements Visitor {
                 addError("Incorrect parameter type on method call line " + n.line_number + ". Expected type " + parmCorrectType.toString() + " but was " + tmpParm.type.toString());
             }
         }
-        //give the call the return type of the method called if possible, otherwise set to undefined
-        try {
-            n.type = ((MethodADT)n.i.type).returnType;
-        } catch (ClassCastException e) {
-            n.type = UndefinedADT.UNDEFINED;
-        }
+        //give the call the return type of the method, cast works since we checked above that n.i.type is MethodADT
+        n.type = ((MethodADT)n.i.type).returnType;
     }
 
     @Override
@@ -407,9 +413,10 @@ public class P5TypeCheckingVisitor implements Visitor {
     @Override
     public void visit(This n) {
         //set type of 'this' to the class it is used in or if it's outside of scope somehow to undefined
-        if(st instanceof ClassADT) {
-            n.type = st;
-        } else {
+        if(st instanceof MethodADT) {
+            n.type = ((MethodADT) st).getClassADT();
+        }
+         else {
             n.type = UndefinedADT.UNDEFINED;
             addError("'This' is undefined in line " + n.line_number);
         }
@@ -419,7 +426,7 @@ public class P5TypeCheckingVisitor implements Visitor {
     public void visit(NewArray n) {
         //visit expression inside brackets (should be int)
         n.e.accept(this);
-        //type check
+        //type check expression inside of brackets(should be int)
         if(!BaseADT.INT.equals(n.e.type)) {
             addError(n.e.toString() + " has type " + n.e.type.toString() + " but must have type int. In line " + n.e.line_number);
         }
@@ -457,7 +464,7 @@ public class P5TypeCheckingVisitor implements Visitor {
     private ADT searchForMethod(String s) {
         ClassADT tmp = (ClassADT) st;
         while(tmp != null) {
-            ADT result = tmp.get(s);
+            MethodADT result = tmp.getMethod(s);
             if(result != null) {
                 return result;
             }
@@ -467,12 +474,13 @@ public class P5TypeCheckingVisitor implements Visitor {
     }
 
     private ADT searchForVar(String s, String errorMessage) {
+        ADT methodScopeResult = ((MethodADT) st).get(s);
         //search method scope for var decl
-        if(((MethodADT) st).get(s) != null) {
-            return ((MethodADT) st).get(s);
+        if(methodScopeResult != null) {
+            return methodScopeResult;
         }
         //search class and parent classes for fields
-        ClassADT tmp = (ClassADT) st.prev;
+        ClassADT tmp = ((MethodADT) st).getClassADT();
         while(tmp != null) {
             ADT result = tmp.getField(s);
             if(result != null) {
