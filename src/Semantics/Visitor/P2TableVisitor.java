@@ -3,6 +3,7 @@ package Semantics.Visitor;
 import AST.*;
 import AST.Visitor.Visitor;
 import Semantics.*;
+import java.util.*;
 
 /**
  * 2nd and last pass of symbol table construction. Does six things:
@@ -17,29 +18,24 @@ import Semantics.*;
 public class P2TableVisitor implements Visitor {
     private final GlobalADT global;
     private TableADT st;
-    private boolean error;
+    private final List<String> errors;
 
     public P2TableVisitor(GlobalADT global) {
         this.global = global;
         st = global;
-        error = false;
+        errors = new ArrayList<>();
     }
 
-    public TableADT getGlobalTable() {
-        return st;
+    public GlobalADT getGlobalTable() {
+        return global;
     }
 
-    public boolean getError() {
-        return error;
+    public List<String> getErrors() {
+        return errors;
     }
 
-    private void printError(String message) {
-        error = true;
-        System.out.println(message);
-    }
-
-    private void printErrorForUndefined(String name, int lineNumber) {
-        printError(
+    private void addErrorForUndefined(String name, int lineNumber) {
+        errors.add(
             "UndefinedIdentifierException: class " + name
             + " at line " + lineNumber + " is not defined."
         );
@@ -56,10 +52,10 @@ public class P2TableVisitor implements Visitor {
     @Override
     public void visit(MainClass n) {
         // ! Ignores n.i2.s (String[] args) entirely
-        String name = n.i1.s;
-        ClassADT c = global.get(name);
+        ClassADT c = global.get(MethodADT.MAIN_METHOD_NAME);
         MethodADT m = new MethodADT(MethodADT.MAIN_METHOD_NAME, VoidADT.VOID, c);
-        error = error || c.put(name, m);
+        String error = c.putMethod(MethodADT.MAIN_METHOD_NAME, m);
+        if (error != null) errors.add(error);
     }
 
     @Override
@@ -80,7 +76,7 @@ public class P2TableVisitor implements Visitor {
         String parentName = n.j.s;
         ClassADT parent = global.getOrDeclare(parentName);
         if (parent == null) {
-            printErrorForUndefined(parentName, n.line_number);
+            addErrorForUndefined(parentName, n.line_number);
         }
         ClassADT c = global.get(n.i.s);
         c.parent = parent;
@@ -100,8 +96,8 @@ public class P2TableVisitor implements Visitor {
     public void visit(MethodDecl n) {
         String name = n.i.s;
         ADT returnType = convertToADT(n.t);
-        MethodADT m = new MethodADT(name, returnType, (ClassADT) st);
-
+        ClassADT c = (ClassADT) st;
+        MethodADT m = new MethodADT(name, returnType, c);
         st = m;         // Set scope to method
         // Method parameters
         for (int i = 0; i < n.fl.size(); i++) {
@@ -111,9 +107,9 @@ public class P2TableVisitor implements Visitor {
         for (int i = 0; i < n.vl.size(); i++) {
             n.vl.get(i).accept(this);
         }
-        st = st.prev;   // Set scope back to class
-
-        error = error || st.put(name, m);
+        st = st.prev;   // Set scope back to c
+        String error = c.putMethod(name, m);
+        if (error != null) errors.add(error);
     }
 
     @Override
@@ -121,7 +117,13 @@ public class P2TableVisitor implements Visitor {
         String name = n.i.s;
         ADT t = convertToADT(n.t);
         t.prev = st;
-        error = error || st.put(name, t);
+        String error;
+        if (st instanceof ClassADT c) {
+            error = c.putField(name, t);
+        } else {
+            error = st.put(name, t);
+        }
+        if (error != null) errors.add(error);
 
         // Formal is (probably) a method parameter
         if (st instanceof MethodADT m) {
@@ -134,7 +136,13 @@ public class P2TableVisitor implements Visitor {
         String name = n.i.s;
         ADT t = convertToADT(n.t);
         t.prev = st;
-        error = error || st.put(name, t);
+        String error;
+        if (st instanceof ClassADT c) {
+            error = c.putField(name, t);
+        } else {
+            error = st.put(name, t);
+        }
+        if (error != null) errors.add(error);
     }
 
     public ADT convertToADT(AST.Type t) {
@@ -148,7 +156,7 @@ public class P2TableVisitor implements Visitor {
             String className = it.s;
             ADT res = global.getOrDeclare(className);
             if (res == null) {
-                printErrorForUndefined(className, it.line_number);
+                addErrorForUndefined(className, it.line_number);
             }
             return global.get(className);
         }

@@ -4,7 +4,7 @@ import java.util.*;
 
 public class MethodADT extends TableADT {
 
-	public static final String MAIN_METHOD_NAME = "0";
+	public static final String MAIN_METHOD_NAME = "MAIN";
 
 	public final String name;
 	public final List<ADT> paramTypes;
@@ -27,6 +27,7 @@ public class MethodADT extends TableADT {
 
 	@Override
 	public boolean same(ADT o) {
+		if (o instanceof UndefinedADT) return true;
 		// Check MethodADT, paramTypes, and returnType
 		if (!(o instanceof MethodADT oo))
 			return false;
@@ -46,7 +47,30 @@ public class MethodADT extends TableADT {
 
 	@Override
 	public String toString() {
-		return "<method '" + name + "'>";
+		String s = "";
+		if (paramTypes.isEmpty()) {
+			s += VoidADT.VOID;
+		} else {
+			s += "(" + paramTypes.get(0);
+			for (int i = 1; i < paramTypes.size(); i++) {
+				s += ", ";
+				s += paramTypes.get(i);
+			}
+			s += ")";
+		}
+		s += " -> " + returnType;
+		return s;
 	}
+
+	@Override
+	public String tableToString() {
+        String s = "method " + name + " : " + this.toString() + "\n";
+        for (String varName : this.keySet()) {
+            ADT t = this.get(varName);
+            s += indent(depth + 1);
+            s += t + " " + varName + "\n";
+        }
+        return s;
+    }
 
 }

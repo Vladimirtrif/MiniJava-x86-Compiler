@@ -3,6 +3,7 @@ package Semantics.Visitor;
 import AST.*;
 import AST.Visitor.Visitor;
 import Semantics.*;
+import java.util.*;
 
 /**
  * 1st pass of symbol table construction. Does three things:
@@ -15,19 +16,19 @@ import Semantics.*;
 public class P1TableVisitor implements Visitor {
 
     private final GlobalADT global;
-    private boolean error;
+    private final List<String> errors;
 
     public P1TableVisitor() {
         global = new GlobalADT();
-        error = false;
+        errors = new ArrayList<>();
     }
 
     public GlobalADT getGlobalADT() {
         return global;
     }
 
-    public boolean getError() {
-        return error;
+    public List<String> getErrors() {
+        return errors;
     }
 
     @Override
@@ -40,7 +41,7 @@ public class P1TableVisitor implements Visitor {
 
     @Override
     public void visit(MainClass n) {
-        makeClass(n.i1.s, null);
+        makeClass(MethodADT.MAIN_METHOD_NAME, null);
     }
 
     @Override
@@ -55,10 +56,10 @@ public class P1TableVisitor implements Visitor {
 
     private void makeClass(String name, String parentName) {
         ADT t = new ClassADT(name, parentName, global);
-        if (global.put(name, t)) {
-            error = true;
+        String error = global.put(name, t);
+        if (error != null) {
+            errors.add(error);
         }
-        error = error || global.put(name, t);
     }
 
     @Override

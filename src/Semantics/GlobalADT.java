@@ -24,7 +24,17 @@ public class GlobalADT extends TableADT {
 
     @Override
     public String toString() {
-        return "<table 'GlobalADT'>";
+        return "global";
     }
 
+    @Override
+    public String tableToString() {
+        String s = "global\n";
+        for (String className : this.keySet()) {
+            ClassADT c = (ClassADT) this.get(className);
+            s += indent(depth + 1);
+            s += c.tableToString();
+        }
+        return s;
+    }
 }

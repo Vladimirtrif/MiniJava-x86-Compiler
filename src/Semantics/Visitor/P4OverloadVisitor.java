@@ -12,20 +12,15 @@ import java.util.*;
 public class P4OverloadVisitor implements Visitor {
 
     private final GlobalADT global;
-    private boolean error;
+    private final List<String> errors;
 
     public P4OverloadVisitor(GlobalADT global) {
         this.global = global;
-        error = false;
+        errors = new ArrayList<>();
     }
 
-    public boolean getError() {
-        return error;
-    }
-
-    private void printError(String message) {
-        error = true;
-        System.out.println(message);
+    public List<String> getErrors() {
+        return errors;
     }
 
     @Override
@@ -64,7 +59,7 @@ public class P4OverloadVisitor implements Visitor {
                     MethodADT oldMethod = visited.get(name);
                     // Two methods with the same name and different types
                     if (!method.same(oldMethod)) {
-                        printError(
+                        errors.add(
                             "OverloadError: " + method + " at " + c.name
                             + " illegally overloads " + oldMethod + " at " + oldMethod.getClassADT().name + "."
                         );

@@ -13,7 +13,7 @@ import java.util.*;
 public class P3CyclicExtendsVisitor implements Visitor {
 
     private final GlobalADT global;
-    private boolean error;
+    private final List<String> errors;
 
     // set of non-simple classes we know are free from cyclic extends
     private final Set<ClassADT> okay;
@@ -21,29 +21,24 @@ public class P3CyclicExtendsVisitor implements Visitor {
     public P3CyclicExtendsVisitor(GlobalADT global) {
         okay = new HashSet<>();
         this.global = global;
-        error = false;
+        errors = new ArrayList<>();
     }
 
-    public boolean getError() {
-        return error;
-    }
-
-    private void printError(String message) {
-        error = true;
-        System.out.println(message);
+    public List<String> getErrors() {
+        return errors;
     }
 
     @Override
     public void visit(Program n) {
         for (int i = 0; i < n.cl.size(); i++) {
             n.cl.get(i).accept(this);
-            if (error) return;
+            if (!errors.isEmpty()) return;
         }
     }
 
     @Override
     public void visit(MainClass n) {
-        ClassADT c = global.get(n.i1.s);
+        ClassADT c = global.get(MethodADT.MAIN_METHOD_NAME);
         c.hasNoCyclicExtends = true;
     }
 
@@ -60,7 +55,7 @@ public class P3CyclicExtendsVisitor implements Visitor {
             Set<ClassADT> visited = new HashSet<>();
             for (ClassADT c = c0; c.parent != null; c = c.parent) {
                 if (visited.contains(c)) {
-                    printError("CyclicExtendsError: Cyclic extends detected at " + c + ".");
+                    errors.add("CyclicExtendsError: Cyclic extends detected at " + c + ".");
                     return;
                 }
                 visited.add(c);

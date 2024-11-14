@@ -19,13 +19,14 @@ public class BaseADT extends ADT {
 	}
 
 	@Override
-	public boolean same(ADT other) {
-		return this == other;
+	public boolean same(ADT o) {
+		if (o instanceof UndefinedADT) return true;
+		return this == o;
 	}
 
 	@Override
-	public boolean assignable(ADT other) {
-		return this == other;
+	public boolean assignable(ADT o) {
+		return this == o;
 	}
 
 }

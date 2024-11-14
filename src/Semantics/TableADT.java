@@ -35,41 +35,19 @@ public class TableADT extends ADT {
         return t;
     }
 
-    public boolean put(String s, ADT t) {
-        boolean error = this.get(s) != null;
-        if (error) {
-            System.out.println("DuplicateNameError: Duplicate name '" + s + "' declared at depth " + depth + ".");
-        }
-        table.put(s, t);
-        return error;
+    public String put(String s, ADT t) {
+        return table.put(s, t) == null
+            ? null
+            : "DuplicateNameError: Duplicate name '" + s + "' declared at depth " + depth + ".";
     }
 
     public Set<String> keySet() {
         return table.keySet();
     }
 
-    public String tableToString() {
-        // TODO: Change if ugly
-        StringBuilder res = new StringBuilder();
-        if (depth == GLOBAL_DEPTH) {
-            res.append("Global:\n");
-        }
-        for (String s : table.keySet()) {
-            ADT t = table.get(s);
-            res.append(indent(depth + 1));
-            res.append(s);
-            res.append("::=");
-            res.append(t);
-            res.append("\n");
-            if (t instanceof TableADT st) {
-                res.append(st.tableToString());
-                res.append("\n");
-            }
-        }
-        return res.toString();
-    }
+    public String tableToString() { return null; }
 
-    private String indent(int depth) {
+    public static String indent(int depth) {
 		String res = "";
 		for (int i = 0; i < depth; i++)
 			res += TAB;
@@ -87,8 +65,6 @@ public class TableADT extends ADT {
     }
 
     @Override
-    public String toString() {
-        return "<table 'TableADT'>";
-    }
+    public String toString() { return null; }
 
 }

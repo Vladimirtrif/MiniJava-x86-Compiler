@@ -27,7 +27,7 @@ public class ClassADT extends TableADT {
 	}
 
 	public Set<String> fieldNames() {
-		return fields.keySet();
+		return super.keySet();
 	}
 
 	public Set<String> methodNames() {
@@ -35,7 +35,7 @@ public class ClassADT extends TableADT {
 	}
 
 	public ADT getField(String s) {
-		return fields.get(s);
+		return super.get(s);
 	}
 
 	public MethodADT getMethod(String s) {
@@ -98,17 +98,27 @@ public class ClassADT extends TableADT {
 		}
 	}
 
+	public String putField(String s, ADT t) {
+		return super.put(s, t);
+	}
+
+	public String putMethod(String s, MethodADT t) {
+		return methods.put(s, t);
+	}
+
 	@Override
-	public boolean put(String s, ADT t) {
-		if (t instanceof MethodADT) {
-			return methods.put(s, t);
-		} else {
-			return fields.put(s, t);
-		}
+	public String put(String s, ADT t) {
+		throw new UnsupportedOperationException("Usage: putField, putMethod");
+	}
+
+	@Override
+	public ADT get(String s) {
+		throw new UnsupportedOperationException("Usage: getField, getMethod");
 	}
 
 	@Override
 	public boolean same(ADT o) {
+		if (o instanceof UndefinedADT) return true;
 		if (!(o instanceof ClassADT oo))
 			return false;
 		return name.equals(oo.name);
@@ -129,8 +139,22 @@ public class ClassADT extends TableADT {
 	}
 
 	@Override
-	public String toString() {
-        return "<class " + name + ">";
+	public String toString() { return name; }
+
+	@Override
+	public String tableToString() {
+		String s = "class " + name + "\n";
+		for (String fieldName : fieldNames()) {
+            ADT t = getField(fieldName);
+            s += TableADT.indent(depth + 1);
+            s += t + " " + fieldName + "\n";
+        }
+        for (String methodName : methodNames()) {
+            MethodADT m = getMethod(methodName);
+            s += TableADT.indent(depth + 1);
+            s += m.tableToString();
+        }
+        return s;
 	}
 
 }

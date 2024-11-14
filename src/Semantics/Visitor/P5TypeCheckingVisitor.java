@@ -3,19 +3,21 @@ package Semantics.Visitor;
 import AST.*;
 import AST.Visitor.Visitor;
 import Semantics.*;
-
-import javax.print.PrintException;
-import java.util.LinkedList;
+import java.util.*;
 
 public class P5TypeCheckingVisitor implements Visitor {
 
     private final GlobalADT global;
     private TableADT st;
-    private LinkedList<String> errors;
+    private final LinkedList<String> errors;
     public P5TypeCheckingVisitor(GlobalADT global) {
         this.global = global;
         this.st = global;
-        this.errors = new LinkedList<String>();
+        this.errors = new LinkedList<>();
+    }
+
+    public List<String> getErrors() {
+        return errors;
     }
 
     @Override
@@ -31,15 +33,15 @@ public class P5TypeCheckingVisitor implements Visitor {
         catch (IllegalStateException e) {
             //do nothing, just used to jump out of recursion when we hit max allowable errors
         }
-        for(String s : this.errors) {
-            System.err.println(s);
-        }
+        // for(String s : this.errors) {
+        //     System.err.println(s);
+        // }
     }
 
     @Override
     public void visit(MainClass n) {
         //set current symbol table/scope to current class
-        st = global.get(n.i1.s);
+        st = global.get(MethodADT.MAIN_METHOD_NAME);
         //annotate class
         n.type = st;
         // ! Ignores n.i2.s (String[] args) entirely
@@ -413,8 +415,8 @@ public class P5TypeCheckingVisitor implements Visitor {
     @Override
     public void visit(This n) {
         //set type of 'this' to the class it is used in or if it's outside of scope somehow to undefined
-        if(st instanceof MethodADT) {
-            n.type = ((MethodADT) st).getClassADT();
+        if (st instanceof MethodADT m) {
+            n.type = m.getClassADT();
         }
          else {
             n.type = UndefinedADT.UNDEFINED;
