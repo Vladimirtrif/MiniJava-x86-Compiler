@@ -1,0 +1,11 @@
+1. Addtional checks or other extensions:
+    We have no additional checks or extensions.
+
+2. Changes made to previous parts:
+    - We fixed all the errors in our parser
+    - We changed our AST Node type to have a type field that holds the type of the AST Node so we can annotate the nodes.
+      The default type is undefined but when we typecheck we change it to the correct type for nodes that require annotations
+      (particularly expressions).
+
+3. How we managed the work:
+   We pair programmed in the cse lab together so we did the entire part of this project together in person.
