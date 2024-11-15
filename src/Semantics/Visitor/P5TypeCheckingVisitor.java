@@ -181,7 +181,7 @@ public class P5TypeCheckingVisitor implements Visitor {
         n.e.accept(this);
         //typecheck condition
         if(!BaseADT.BOOLEAN.equals(n.e.type)) {
-            addError("Invalid type, condition of if " + n.e.toString() + " must be boolean. In line " + n.e.line_number);
+            addError("Invalid type, condition of if, has type " + n.e.type.toString() + " but must be boolean. In line " + n.e.line_number);
         }
         //visit if body
         n.s1.accept(this);
@@ -195,7 +195,7 @@ public class P5TypeCheckingVisitor implements Visitor {
         n.e.accept(this);
         //typecheck condition
         if(!BaseADT.BOOLEAN.equals(n.e.type)) {
-            addError("Invalid type, condition of while " + n.e.toString() + " must be boolean. In line " + n.e.line_number);
+            addError("Invalid type, condition of while, has type " + n.e.type.toString() + " but must be boolean. In line " + n.e.line_number);
         }
         //annotate body of while statement
         n.s.accept(this);
@@ -206,7 +206,7 @@ public class P5TypeCheckingVisitor implements Visitor {
         //annotate expression inside of print statement
         n.e.accept(this);
         if(!(BaseADT.INT.same(n.e.type) || BaseADT.BOOLEAN.same(n.e.type))) {
-            addError("Expression inside print statement has type " + n.e.type + " but must be int or boolean. On line " + n.line_number);
+            addError("Expression inside print statement has type " + n.e.type.toString() + " but must be int or boolean. On line " + n.line_number);
         }
     }
 
@@ -217,8 +217,8 @@ public class P5TypeCheckingVisitor implements Visitor {
        //visit right side
         n.e.accept(this);
         //typecheck
-        if(!n.e.type.assignable(n.i.type)) {
-            addError("Expression of type " + n.e.type.toString() + " is not assignable to  " + n.i.toString() + " of type " + n.i.type.toString());
+        if(!n.i.type.assignable(n.e.type)) {
+            addError("Expression of type " + n.e.type.toString() + " is not assignable to variable " + n.i.toString() + " which has type " + n.i.type.toString() + ". In line " + n.line_number);
 
         }
         //leave assign type as undefined
@@ -229,17 +229,17 @@ public class P5TypeCheckingVisitor implements Visitor {
         //visit array id (should be array)
         n.i.accept(this);
         if(!BaseADT.INT_ARRAY.equals(n.i.type)) {
-            addError("Invalid type, " + n.i.toString() + " must be an int array. In line " + n.i.line_number);
+            addError("Invalid type, is " + n.i.type.toString() + " but must be an int array. In line " + n.i.line_number);
         }
         //visit index expression (should be int)
         n.e1.accept(this);
         if(!BaseADT.INT.equals(n.e1.type)) {
-            addError("Invalid type, " + n.e1.toString() + " must be an int. In line " + n.e1.line_number);
+            addError("Invalid type, is " + n.e1.type.toString() + " but must be an int. In line " + n.e1.line_number);
         }
         //visit right side of equals exp (again should be int)
         n.e2.accept(this);
         if(!BaseADT.INT.equals(n.e2.type)) {
-            addError("Invalid type, " + n.e2.toString() + " must be an int. In line " + n.e2.line_number);
+            addError("Invalid type, is " + n.e2.type.toString() + " but must be an int. In line " + n.e2.line_number);
         }
         //leave assign type as undefined
     }
@@ -250,12 +250,12 @@ public class P5TypeCheckingVisitor implements Visitor {
         n.e1.accept(this);
         //typecheck
         if(!BaseADT.BOOLEAN.equals(n.e1.type)) {
-            addError("Invalid type, " + n.e1.toString() + " must be a boolean. In line " + n.e1.line_number);
+            addError("Invalid type, is " + n.e1.type.toString() + " but must be a boolean. In line " + n.e1.line_number);
         }
         n.e2.accept(this);
         //typecheck
         if(!BaseADT.BOOLEAN.equals(n.e2.type)) {
-            addError("Invalid type, " + n.e2.toString() + " must be a boolean. In line " + n.e2.line_number);
+            addError("Invalid type, is " + n.e2.type.toString() + " but must be a boolean. In line " + n.e2.line_number);
         }
     }
 
@@ -265,12 +265,12 @@ public class P5TypeCheckingVisitor implements Visitor {
         n.e1.accept(this);
         //typecheck
         if(!BaseADT.INT.equals(n.e1.type)) {
-            addError("Invalid type, " + n.e1.toString() + " must be an int. In line " + n.e1.line_number);
+            addError("Invalid type, is " + n.e1.type.toString() + " must be an int. In line " + n.e1.line_number);
         }
         n.e2.accept(this);
         //typecheck
         if(!BaseADT.INT.equals(n.e2.type)) {
-            addError("Invalid type, " + n.e2.toString() + " must be an int. In line " + n.e2.line_number);
+            addError("Invalid type, is " + n.e2.type.toString() + " must be an int. In line " + n.e2.line_number);
         }
     }
 
@@ -280,12 +280,12 @@ public class P5TypeCheckingVisitor implements Visitor {
         n.e1.accept(this);
         //typecheck
         if(!BaseADT.INT.equals(n.e1.type)) {
-            addError("Invalid type, " + n.e1.toString() + " must be an int. In line " + n.e1.line_number);
+            addError("Invalid type, is " + n.e1.type.toString() + " but must be an int. In line " + n.e1.line_number);
         }
         n.e2.accept(this);
         //typecheck
         if(!BaseADT.INT.equals(n.e2.type)) {
-            addError("Invalid type, " + n.e2.toString() + " must be an int. In line " + n.e2.line_number);
+            addError("Invalid type, is " + n.e2.type.toString() + " but must be an int. In line " + n.e2.line_number);
         }
     }
 
@@ -295,12 +295,12 @@ public class P5TypeCheckingVisitor implements Visitor {
         n.e1.accept(this);
         //typecheck
         if(!BaseADT.INT.equals(n.e1.type)) {
-            addError("Invalid type, " + n.e1.toString() + " must be an int. In line " + n.e1.line_number);
+            addError("Invalid type, is " + n.e1.type.toString() + " must be an int. In line " + n.e1.line_number);
         }
         n.e2.accept(this);
         //typecheck
         if(!BaseADT.INT.equals(n.e2.type)) {
-            addError("Invalid type, " + n.e2.toString() + " must be an int. In line " + n.e2.line_number);
+            addError("Invalid type, is " + n.e2.type.toString() + " must be an int. In line " + n.e2.line_number);
         }
     }
 
@@ -310,12 +310,12 @@ public class P5TypeCheckingVisitor implements Visitor {
         n.e1.accept(this);
         //typecheck
         if(!BaseADT.INT.equals(n.e1.type)) {
-            addError("Invalid type, " + n.e1.toString() + " must be an int. In line " + n.e1.line_number);
+            addError("Invalid type, is " + n.e1.type.toString() + " but must be an int. In line " + n.e1.line_number);
         }
         n.e2.accept(this);
         //typecheck
         if(!BaseADT.INT.equals(n.e2.type)) {
-            addError("Invalid type, " + n.e2.toString() + " must be an int. In line " + n.e2.line_number);
+            addError("Invalid type, is " + n.e2.type.toString() + " but must be an int. In line " + n.e2.line_number);
         }
     }
 
@@ -327,13 +327,13 @@ public class P5TypeCheckingVisitor implements Visitor {
         n.e1.accept(this);
         //typecheck left expression
         if(!BaseADT.INT_ARRAY.equals(n.e1.type)) {
-            addError("Invalid type, " + n.e1.toString() + " must be an array. In line " + n.e1.line_number);
+            addError("Invalid type, is " + n.e1.type.toString() + " but must be an array. In line " + n.e1.line_number);
         }
         //annotate right expression (should be int)
         n.e2.accept(this);
         //typecheck right expression
         if(!BaseADT.INT.equals(n.e2.type)) {
-            addError("Invalid type, " + n.e2.toString() + " must be an int. In line " + n.e2.line_number);
+            addError("Invalid type, is " + n.e2.type.toString() + " but must be an int. In line " + n.e2.line_number);
         }
     }
 
@@ -342,7 +342,7 @@ public class P5TypeCheckingVisitor implements Visitor {
         n.type = BaseADT.INT;
         n.e.accept(this);
         if(!BaseADT.INT_ARRAY.equals(n.e.type)) {
-            addError("Invalid type, " + n.e.toString() + " must be an array. In line " + n.line_number);
+            addError("Invalid type, is " + n.e.type.toString() + " but must be an array. In line " + n.line_number);
         }
     }
 
@@ -353,7 +353,7 @@ public class P5TypeCheckingVisitor implements Visitor {
         //check that e evaluates to a class ADT
         if(!(n.e.type instanceof ClassADT)) {
             //if not throw error
-            addError("Invalid type, " + n.e.toString() + " must be an instance of a class. In line " + n.line_number);
+            addError("Invalid type, is" + n.e.toString() + " but must be an instance of a class. In line " + n.line_number);
             //set type to undefined since we don't know what the method returns
             n.type = UndefinedADT.UNDEFINED;
             //return since we can't really typecheck method if we don't know which class it is for
@@ -369,7 +369,7 @@ public class P5TypeCheckingVisitor implements Visitor {
         //check that we found a method with that name (ie it isn't undefined)
         if(!(n.i.type instanceof MethodADT)) {
             //if not throw error
-            addError("No method " + n.i.s + " for " + ((ClassADT) n.e.type).name);
+            addError("No method " + n.i.s + " for " + ((ClassADT) n.e.type).name + ". Line " + n.line_number);
             //set type to undefined since we don't know what the method returns
             n.type = UndefinedADT.UNDEFINED;
             //return since we can't checl params if it isn't methodADT
@@ -378,11 +378,9 @@ public class P5TypeCheckingVisitor implements Visitor {
         //check number of parameters is correct
         if(n.el.size() != ((MethodADT) n.i.type).paramTypes.size()) {
             addError("Incorrect number of parameters on method call line " + n.line_number);
-            //return since it doesn't make sense to typecheck parameters if we don't have right number as input
-            return;
         }
         //visit all parameters
-        for(int i = 0; i < n.el.size(); i++) {
+        for(int i = 0; i < Math.min(n.el.size(), ((MethodADT) n.i.type).paramTypes.size()) ; i++) {
             //passed in parameter exp node from exp list
             Exp tmpParm = n.el.get(i);
             tmpParm.accept(this);
@@ -434,7 +432,7 @@ public class P5TypeCheckingVisitor implements Visitor {
         n.e.accept(this);
         //type check expression inside of brackets(should be int)
         if(!BaseADT.INT.equals(n.e.type)) {
-            addError(n.e.toString() + " has type " + n.e.type.toString() + " but must have type int. In line " + n.e.line_number);
+            addError("Invalid type, is  " + n.e.type.toString() + " but must have type int. In line " + n.e.line_number);
         }
         //mark node as int array type
         n.type = BaseADT.INT_ARRAY;
@@ -459,7 +457,7 @@ public class P5TypeCheckingVisitor implements Visitor {
         n.type = BaseADT.BOOLEAN;
         n.e.accept(this);
         if(!BaseADT.BOOLEAN.equals(n.e.type)) {
-            addError(n.e.toString() + " has type " + n.e.type.toString() + " but must have type Boolean. In line " + n.e.line_number);
+            addError("Invalid type, is " + n.e.type.toString() + " but must have type Boolean. In line " + n.e.line_number);
         }
     }
 
