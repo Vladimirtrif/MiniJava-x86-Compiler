@@ -8,12 +8,14 @@ import java.util.*;
 public class P5TypeCheckingVisitor implements Visitor {
 
     private final GlobalADT global;
+    private final int maxErrors;
     private TableADT st;
     private final LinkedList<String> errors;
     public P5TypeCheckingVisitor(GlobalADT global) {
         this.global = global;
         this.st = global;
         this.errors = new LinkedList<>();
+        this.maxErrors = 15;
     }
 
     public List<String> getErrors() {
@@ -45,10 +47,12 @@ public class P5TypeCheckingVisitor implements Visitor {
         //annotate class
         n.type = st;
         // ! Ignores n.i2.s (String[] args) entirely
+        //set scope to main method
+        st = ((ClassADT)st).getMethod(MethodADT.MAIN_METHOD_NAME);
         //visit main method body
         n.s.accept(this);
         //fix scope
-        st = st.prev;
+        st = global;
     }
 
     @Override
@@ -201,8 +205,8 @@ public class P5TypeCheckingVisitor implements Visitor {
     public void visit(Print n) {
         //annotate expression inside of print statement
         n.e.accept(this);
-        if(!BaseADT.INT.same(n.e.type) || !BaseADT.BOOLEAN.same(n.e.type)) {
-            addError("Expression inside print statement has type " + n.e.type + " but must be int or boolean");
+        if(!(BaseADT.INT.same(n.e.type) || BaseADT.BOOLEAN.same(n.e.type))) {
+            addError("Expression inside print statement has type " + n.e.type + " but must be int or boolean. On line " + n.line_number);
         }
     }
 
@@ -257,7 +261,7 @@ public class P5TypeCheckingVisitor implements Visitor {
 
     @Override
     public void visit(LessThan n) {
-        n.type = BaseADT.INT;
+        n.type = BaseADT.BOOLEAN;
         n.e1.accept(this);
         //typecheck
         if(!BaseADT.INT.equals(n.e1.type)) {
@@ -384,8 +388,8 @@ public class P5TypeCheckingVisitor implements Visitor {
             tmpParm.accept(this);
             //correct type of param according to method signature
             ADT parmCorrectType = ((MethodADT)n.i.type).paramTypes.get(i);
-            if(!tmpParm.type.assignable(parmCorrectType)) {
-                addError("Incorrect parameter type on method call line " + n.line_number + ". Expected type " + parmCorrectType.toString() + " but was " + tmpParm.type.toString());
+            if(!parmCorrectType.assignable(tmpParm.type)) {
+                addError("Incorrect parameter type in method call. Expected type " + parmCorrectType.toString() + " but was " + tmpParm.type.toString() + " In line number " + n.line_number);
             }
         }
         //give the call the return type of the method, cast works since we checked above that n.i.type is MethodADT
@@ -438,14 +442,15 @@ public class P5TypeCheckingVisitor implements Visitor {
 
     @Override
     public void visit(NewObject n) {
-        //visit identifier
-        n.i.accept(this);
-        //set type to the type of id if class, otherwise set to undefined
-        try {
-            n.type = (ClassADT)n.i.type;
-        } catch (ClassCastException e) {
+        //annotate identifier with type of the class
+        n.i.type = global.get(n.i.s);
+        //check that classADT returned by global sm isn't null (ie the class exists)
+        if(n.i.type != null) {
+            n.type = n.i.type;
+        } else {
             n.type = UndefinedADT.UNDEFINED;
-            addError(n.i.toString() + " has type " + n.i.type.toString() + "but must be a class. In line " + n.i.line_number);
+            n.i.type = UndefinedADT.UNDEFINED;
+            addError(n.i.toString() + " has type " + n.i.type.toString() + " but must be a class. In line " + n.i.line_number);
         }
     }
 
@@ -499,7 +504,7 @@ public class P5TypeCheckingVisitor implements Visitor {
 
     private void addError(String s) {
         this.errors.add(s);
-        if(this.errors.size() > 9) {
+        if(this.errors.size() > maxErrors - 1) {
             throw new IllegalStateException();
         }
     }
