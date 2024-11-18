@@ -1,9 +1,8 @@
-package Generator.Visitor
+package Generator.Visitor;
 
 import AST.*;
 import AST.Visitor.Visitor;
 import Semantics.*;
-import java.util.*;
 
 public class GeneratorVisitor implements Visitor {
 
@@ -36,30 +35,30 @@ public class GeneratorVisitor implements Visitor {
         println();
     }
 
-    private void run(String s) {
+    private void gen(String s) {
         str.append(TAB);
         println(s);
     }
 
-    private void run(String inst, String i) {
-        run(inst + " " + i);
+    private void gen(String inst, String i) {
+        gen(inst + " " + i);
     }
 
-    private void run(String inst, String i, String j) {
-        run(inst + " " + i + "," + j);
+    private void gen(String inst, String i, String j) {
+        gen(inst + " " + i + "," + j);
     }
 
-    private void run(String inst, int c, String i) {
-        run(inst, "$" + c, i);
+    private void gen(String inst, int c, String i) {
+        gen(inst, "$" + c, i);
     }
 
     private void pushq(String r) {
-        run("pushq", r);
+        gen("pushq", r);
         stackBytes += 8;
     }
 
     private void popq(String r) {
-        run("popq", r);
+        gen("popq", r);
         stackBytes -= 8;
     }
 
@@ -67,39 +66,35 @@ public class GeneratorVisitor implements Visitor {
         return stackBytes % 16 == 0;
     }
 
-    private void align(String r) {
-		if (!isAligned()) {
-			pushq(r);
-			stackBytes += 8;
-		}
-	}
-
     private void methodHeader() {
         pushq("%rbp");
-        run("movq", "%rsp", "%rbp");
+        gen("movq", "%rsp", "%rbp");
     }
 
     private void methodFooter() {
-        run("movq", "%rbp", "%rsp");
+        gen("movq", "%rbp", "%rsp");
 		popq("%rbp");
-		run("ret");
+		gen("ret");
     }
 
     @Override
     public void visit(Print n) {
         n.e.accept(this);
-		pushq("%rdi");
-		run("movq", "%rax","%rdi");
-		align("%rax");
-	    run("call", "put");
-		align("%rdx");
-		popq("%rdi");
+
+        pushq("%rdi");
+        if (!isAligned()) pushq("%rdi");
+
+        gen("movq", "%rax", "%rdi");
+        gen("call", "put");
+
+        if (isAligned()) popq("%rdi");
+        popq("%rdi");
     }
 
     @Override
     public void visit(Program n) {
-        run(".text");
-        run(".globl asm_main");
+        gen(".text");
+        gen(".globl asm_main");
 		n.m.accept(this);
 		for (int i = 0; i < n.cl.size(); i++) {
 			n.cl.get(i).accept(this);
@@ -109,14 +104,15 @@ public class GeneratorVisitor implements Visitor {
     @Override
     public void visit(MainClass n) {
 		println("asm_main:");
+
         methodHeader();
 		n.s.accept(this);
 		methodFooter();
-		
-		// dispatch table for the main class
+
+        // vtable
 		println();
-		run(".data");
-		println(n.i1.s + "$$: .quad 0");
+		gen(".data");
+		println(n.i1.s + "$$:" + TAB + ".quad 0");
 		println();
     }
 
