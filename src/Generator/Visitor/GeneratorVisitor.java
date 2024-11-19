@@ -112,7 +112,7 @@ public class GeneratorVisitor implements Visitor {
         // vtable
 		println();
 		gen(".data");
-		println(n.i1.s + "$$:" + TAB + ".quad 0");
+		println(n.i1.s + "$$: " + ".quad 0");
 		println();
     }
 
