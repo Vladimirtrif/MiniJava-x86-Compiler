@@ -1,6 +1,6 @@
 package Semantics;
 
-import java.util.Set;
+import java.util.*;
 
 public class ClassADT extends TableADT {
 
@@ -51,9 +51,7 @@ public class ClassADT extends TableADT {
 	}
 
 	public ADT deepgetField(String s) {
-		if (!hasNoCyclicExtends) {
-			throw new IllegalStateException();
-		}
+		if (!hasNoCyclicExtends) { throw new IllegalStateException(); }
 		ClassADT c = this;
 		while (c != null) {
 			ADT res = c.getField(name);
@@ -66,9 +64,7 @@ public class ClassADT extends TableADT {
 	}
 
 	public MethodADT deepgetMethod(String s) {
-		if (!hasNoCyclicExtends) {
-			throw new IllegalStateException();
-		}
+		if (!hasNoCyclicExtends) { throw new IllegalStateException(); }
 		ClassADT c = this;
 		while (c != null) {
 			MethodADT res = c.getMethod(name);
@@ -157,4 +153,14 @@ public class ClassADT extends TableADT {
         return s;
 	}
 
+	/**
+	 * Extended features for offset calculation in Generator
+	 */
+	public List<MethodADT> allMethods = new ArrayList<>();
+	public List<String> allFields = new ArrayList<>();
+	public Map<String, Integer> methodToOffset = new HashMap<>();
+	public Map<String, Integer> fieldToOffset = new HashMap<>();
+	public int methodToOffset(String s) { return methodToOffset.get(s); }
+	public int methodToOffset(MethodADT m) { return methodToOffset(m.name); }
+	public int fieldToOffset(String s) { return fieldToOffset.get(s); }
 }

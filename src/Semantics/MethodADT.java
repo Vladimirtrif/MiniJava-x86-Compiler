@@ -73,4 +73,9 @@ public class MethodADT extends TableADT {
         return s;
     }
 
+	/**
+	 * Extended features for offset calculation in Generator
+	 */
+	public Map<String, Integer> varToOffset = new HashMap<>();
+	public int varToOffset(String s) { return varToOffset.get(s); }
 }
