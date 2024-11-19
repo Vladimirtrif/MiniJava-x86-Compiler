@@ -196,17 +196,26 @@ public class GeneratorVisitor implements Visitor {
 
     @Override
     public void visit(Plus n) {
-        throw new UnsupportedOperationException("Not supported yet.");
+       n.e2.accept(this);
+       gen("movq", "%rax","%rdx");
+       n.e1.accept(this);
+       gen("addq", "%rdx","%rax");
     }
 
     @Override
     public void visit(Minus n) {
-        throw new UnsupportedOperationException("Not supported yet.");
+        n.e2.accept(this);
+        gen("movq", "%rax","%rdx");
+        n.e1.accept(this);
+        gen("subq", "%rdx","%rax");
     }
 
     @Override
     public void visit(Times n) {
-        throw new UnsupportedOperationException("Not supported yet.");
+        n.e2.accept(this);
+        gen("movq", "%rax","%rdx");
+        n.e1.accept(this);
+        gen("imulq", "%rdx","%rax");
     }
 
     @Override
@@ -226,7 +235,7 @@ public class GeneratorVisitor implements Visitor {
 
     @Override
     public void visit(IntegerLiteral n) {
-        throw new UnsupportedOperationException("Not supported yet.");
+        gen("movq", n.i, "%rax");
     }
 
     @Override
