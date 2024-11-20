@@ -1,0 +1,20 @@
+Part III of the MiniJava compiler project, the typechecker
+
+TOTAL: 49/60
+Late days used for this assignment: 1
+
+The semantics checker produces extraneous output at times (perhaps debugging output, duplicate error messages, succeeded/no error found, etc.). (0)
+
+Missing error report: an overridden method in a subclass must have the same argument type list as the superclass’s method. (-2)
+
+Symbol table doesn’t indicate inheritance relationships. (-2)
+
+The project prints errors to stdout instead of stderr. (-1)
+
+Missing error report: an overridden method in a subclass must have either the same return type or a subclass of the return type in the original superclass method. (-2)
+
+The semantics checker sometimes does not print line numbers, particularly when there are issues with duplicate declarations. (0)
+
+Missing error report: “System.out.println” can only take integer arguments. (-2)
+
+Missing error report: return type in function header must match actual returned type. (-2)
