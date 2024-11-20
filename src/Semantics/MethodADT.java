@@ -2,28 +2,40 @@ package Semantics;
 
 import java.util.*;
 
-public class MethodADT extends TableADT {
-
-	public static final String MAIN_METHOD_NAME = "MAIN";
-
+public class MethodADT extends ADT {
+	public static final String MAIN_METHOD_NAME = "0";
 	public final String name;
+	public final int numParams;
 	public final List<ADT> paramTypes;
 	public final ADT returnType;
+	private final SymbolTable table;
 
-	public MethodADT(String name, ADT returnType, ClassADT prev) {
-		super(prev);
+	public MethodADT(String name, int numParams, ADT returnType, ClassADT prev) {
+		this.prev = prev;
 		this.name = name;
-		paramTypes = new ArrayList<>();
+		this.numParams = numParams;
 		this.returnType = returnType;
+		table = new SymbolTable();
+		paramTypes = new ArrayList<>();
 	}
 
-	public ClassADT getClassADT() {
-		return (ClassADT) this.prev;
-	}
+	// SymbolTable
+	public Set<String> varNames() { return table.keySet(); }
+	public ADT get(String s) { return table.get(s); }
+	public ADT getOrDeclare(String s) { return table.getOrDeclare(s); }
+	public String put(String s, ADT t) {
+		ADT res = table.put(s, t);
+		if (table.size() < numParams) {
+			paramTypes.add(t);
+		}
+        return res == null
+            ? null
+            : "DuplicateNameError: Duplicate name '" + s 
+			+ "' declared at method " + name
+			+ " in class " + getClassADT().name + ".";
+    }
 
-	public void addParamType(ADT t) {
-		paramTypes.add(t);
-	}
+	public ClassADT getClassADT() { return (ClassADT) this.prev; }
 
 	@Override
 	public boolean same(ADT o) {
@@ -41,9 +53,7 @@ public class MethodADT extends TableADT {
 	}
 
 	@Override
-	public boolean assignable(ADT o) {
-		return same(o);
-	}
+	public boolean assignable(ADT o) { return same(o); }
 
 	@Override
 	public String toString() {
@@ -62,12 +72,11 @@ public class MethodADT extends TableADT {
 		return s;
 	}
 
-	@Override
 	public String tableToString() {
         String s = "method " + name + " : " + this.toString() + "\n";
-        for (String varName : this.keySet()) {
+        for (String varName : varNames()) {
             ADT t = this.get(varName);
-            s += indent(depth + 1);
+            s += SymbolTable.indent(3);
             s += t + " " + varName + "\n";
         }
         return s;

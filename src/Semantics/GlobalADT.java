@@ -2,24 +2,20 @@ package Semantics;
 
 import java.util.Set;
 
-public class GlobalADT extends TableADT {
+public class GlobalADT extends ADT {
+    private final SymbolTable table;
 
     public GlobalADT() {
-        super();
+        table = new SymbolTable();
     }
 
-    public Set<String> classNames() {
-        return this.keySet();
-    }
-
-    @Override
-    public ClassADT get(String s) {
-        return (ClassADT) super.get(s);
-    }
-
-    @Override
-    public ClassADT getOrDeclare(String s) {
-        return (ClassADT) super.getOrDeclare(s);
+	public Set<String> classNames() { return table.keySet(); }
+	public ClassADT get(String s) { return (ClassADT) table.get(s); }
+	public ADT getOrDeclare(String s) { return table.getOrDeclare(s); }
+	public String put(String s, ADT t) {
+        return table.put(s, t) == null
+            ? null
+            : "DuplicateNameError: Duplicate class name '" + s + "' declared.";
     }
 
     @Override
@@ -27,12 +23,11 @@ public class GlobalADT extends TableADT {
         return "global";
     }
 
-    @Override
     public String tableToString() {
         String s = "global\n";
-        for (String className : this.keySet()) {
+        for (String className : classNames()) {
             ClassADT c = (ClassADT) this.get(className);
-            s += indent(depth + 1);
+            s += SymbolTable.indent(1);
             s += c.tableToString();
         }
         return s;

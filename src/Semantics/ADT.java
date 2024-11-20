@@ -2,14 +2,13 @@ package Semantics;
 
 
 public abstract class ADT {
+    public static final String TAB = "  ";
 
-    public TableADT prev = null;
+    public ADT prev = null; // symbol table
 
-    public abstract boolean same(ADT o);
-    
-    public abstract boolean assignable(ADT o);
+    public boolean same(ADT o) { return o == this; }        // type info
+    public boolean assignable(ADT o) { return o == this; }  // type info
 
     @Override
-    public abstract String toString();
-
+    public abstract String toString();          // type info
 }

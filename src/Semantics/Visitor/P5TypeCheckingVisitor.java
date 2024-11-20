@@ -9,7 +9,7 @@ public class P5TypeCheckingVisitor implements Visitor {
 
     private final GlobalADT global;
     private final int maxErrors;
-    private TableADT st;
+    private ADT st;
     private final LinkedList<String> errors;
     public P5TypeCheckingVisitor(GlobalADT global) {
         this.global = global;
@@ -360,7 +360,7 @@ public class P5TypeCheckingVisitor implements Visitor {
             return;
         }
         //set scope for identifier visit
-        TableADT tmp = st;
+        ADT tmp = st;
         st = global.get(((ClassADT)n.e.type).name);
         //annotate i in e.i(el) (without using visitor pattern)
         n.i.type = searchForMethod(n.i.s);
@@ -494,7 +494,7 @@ public class P5TypeCheckingVisitor implements Visitor {
             tmp = tmp.parent;
         }
         //if not found, add to method sm as local (so we don't continue getting errors for this identifier in method scope)
-        st.put(s, UndefinedADT.UNDEFINED);
+        ((MethodADT) st).put(s, UndefinedADT.UNDEFINED);
         //add error to errors
         addError(errorMessage);
         return UndefinedADT.UNDEFINED;

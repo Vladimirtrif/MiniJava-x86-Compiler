@@ -8,7 +8,7 @@ public class GeneratorVisitor implements Visitor {
 
     private final StringBuilder str;
     private final GlobalADT global;
-    private TableADT st;
+    private ADT st;
     private static final String TAB = "\t";
     private int stackBytes;     // number of bytes currently allocated on stack
 
@@ -154,7 +154,7 @@ public class GeneratorVisitor implements Visitor {
         String parent = c.parent == null ? "0" : c.parent.name + "$$";
         println(c.name + "$$: .quad " + parent);
 		gen(".quad " + c.name + "$" + c.name);
-		for(MethodADT m : c.allMethods) {
+		for(MethodADT m : c.allMethods.values()) {
 			gen(".quad " +  m.getClassADT().name + "$" + m.name);
 		}
 		println();
@@ -226,13 +226,46 @@ public class GeneratorVisitor implements Visitor {
     }
 
     @Override
-    public void visit(Assign n) {
-        // TODO
+    public void visit(Assign n) {   // i = e;
+        n.e.accept(this);   // stored at (%rax)
+        ADT owner = n.i.type.prev;
+        switch (owner) {
+            case MethodADT m -> {
+                int offset = m.varToOffset(n.i.s);
+                gen("movq", "%rax", offset + "(%rbp)");
+            }
+            case ClassADT c -> {
+                int offset = c.fieldToOffset(n.i.s);
+                gen("movq", "%rax", offset + "(%rdi)");
+            }
+            default -> throw new IllegalStateException("Unreachable code.");
+        }
     }
 
     @Override
-    public void visit(ArrayAssign n) {
-        // TODO
+    public void visit(ArrayAssign n) {  // i[e1] = e2
+        // eval e1 and e2
+        n.e1.accept(this);
+		push("%rax");
+		n.e2.accept(this); 
+		pop("%rdx");    // e1 in %rdx, e2 in %rax
+
+        // fetch i at %rcx
+        ADT owner = n.i.type.prev;
+        switch (owner) {
+            case MethodADT m -> {
+                int offset = m.varToOffset(n.i.s);
+                gen("movq", offset + "(%rbp)", "%rcx");
+            }
+            case ClassADT c -> {
+                int offset = c.fieldToOffset(n.i.s);
+                gen("movq", offset + "(%rdi)", "%rcx");
+            }
+            default -> throw new IllegalStateException("Unreachable code.");
+        }
+
+        // assign
+        gen("movq", "%rax", "8(%rcx,%rdx,8)");
     }
 
     @Override
@@ -310,8 +343,7 @@ public class GeneratorVisitor implements Visitor {
         gen("movq", "%rax", "%rdi");
 
         // actually call
-		gen("movq", "(%rdi)", "%rax"); 
-		gen("lea", 8 + c.methodToOffset(m) + "(%rax)", "%rax"); // TODO: sus
+		gen("lea", c.methodToOffset(m) + "(%rdi)", "%rax");
 		gen("call", "*(%rax)");  
 
         // pop arguments
@@ -340,14 +372,17 @@ public class GeneratorVisitor implements Visitor {
 
     @Override
     public void visit(IdentifierExp n) {
-        // TODO: logic below is sus
-        TableADT owner = n.type.prev;
+        ADT owner = n.type.prev;
         switch (owner) {
             case MethodADT m -> {
+                // if a method owns n, then n is either param or local.
+                // if param, then n's offset is positive (located above rbp)
+                // if local, then n's offset is negative (located below rbp)
                 int offset = m.varToOffset(n.s);
-                gen("movq", "-" + offset + "(%rbp)", "%rax");
+                gen("movq", offset + "(%rbp)", "%rax");
             }
             case ClassADT c -> {
+                // if a class owns n, then n is a field.
                 int offset = c.fieldToOffset(n.s);
                 gen("movq", offset + "(%rdi)", "%rax");
             }

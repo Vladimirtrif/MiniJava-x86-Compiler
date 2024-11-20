@@ -2,62 +2,77 @@ package Semantics;
 
 import java.util.*;
 
-public class ClassADT extends TableADT {
+public class ClassADT extends ADT {
 
 	public String name;
     public String parentName;
     public ClassADT parent = null;
 
-	private TableADT fields;
-	private TableADT methods;
+	private SymbolTable fields;
+	private SymbolTable methods;
 
 	public boolean hasNoCyclicExtends;
 
     public ClassADT(String name, GlobalADT prev) {
-        super(prev);
+        this.prev = prev;
         this.name = name;
 		hasNoCyclicExtends = true;
-		fields = this;
-		methods = new TableADT(prev);
+		fields = new SymbolTable();
+		methods = new SymbolTable();
     }
 
 	public ClassADT(String name, String parentName, GlobalADT prev) {
         this(name, prev);
+		hasNoCyclicExtends = false;
         this.parentName = parentName;
 	}
 
-	public Set<String> fieldNames() {
-		return super.keySet();
+	// SymbolTable operations
+
+	public Set<String> fieldNames() { return fields.keySet(); }
+	public Set<String> methodNames() { return methods.keySet(); }
+	public ADT getField(String s) { return fields.get(s); }
+	public MethodADT getMethod(String s) { return (MethodADT) methods.get(s); }
+	public ADT getFieldOrDeclare(String s) { return fields.getOrDeclare(s); }
+	public ADT getMethodOrDeclare(String s) { return methods.getOrDeclare(s); }
+
+	public String putField(String s, ADT t) {
+        return fields.put(s, t) == null
+            ? null
+            : "DuplicateNameError: Duplicate field name '" + s 
+			+ "' declared at class " + name + ".";
+    }
+
+	public String putMethod(String s, ADT t) {
+        return fields.put(s, t) == null
+            ? null
+            : "DuplicateNameError: Duplicate method name '" + s 
+			+ "' declared at class " + name + ".";
+    }
+
+	public String tableToString() {
+		String s = "class " + name + "\n";
+		for (String fieldName : fieldNames()) {
+            ADT t = getField(fieldName);
+            s += SymbolTable.indent(2);
+            s += t + " " + fieldName + "\n";
+        }
+        for (String methodName : methodNames()) {
+            MethodADT m = getMethod(methodName);
+            s += SymbolTable.indent(2);
+            s += m.tableToString();
+        }
+        return s;
 	}
 
-	public Set<String> methodNames() {
-		return methods.keySet();
-	}
-
-	public ADT getField(String s) {
-		return super.get(s);
-	}
-
-	public MethodADT getMethod(String s) {
-		return (MethodADT) methods.get(s);
-	}
-
-	public ADT getFieldOrDeclare(String s) {
-		return fields.getOrDeclare(s);
-	}
-
-	public MethodADT getMethodOrDeclare(String s) {
-		return (MethodADT) methods.getOrDeclare(s);
-	}
+	// get & getOrDeclare by searching through all superclasses
 
 	public ADT deepgetField(String s) {
 		if (!hasNoCyclicExtends) { throw new IllegalStateException(); }
 		ClassADT c = this;
 		while (c != null) {
 			ADT res = c.getField(name);
-			if (res != null) {
-				return res;
-			}
+			if (res != null) { return res; }
 			c = c.parent;
 		}
 		return null;
@@ -68,9 +83,7 @@ public class ClassADT extends TableADT {
 		ClassADT c = this;
 		while (c != null) {
 			MethodADT res = c.getMethod(name);
-			if (res != null) {
-				return res;
-			}
+			if (res != null) { return res; }
 			c = c.parent;
 		}
 		return null;
@@ -85,7 +98,7 @@ public class ClassADT extends TableADT {
 		}
 	}
 
-	public MethodADT deepgetMethodOrDeclare(String s) {
+	public ADT deepgetMethodOrDeclare(String s) {
 		MethodADT res = deepgetMethod(s);
 		if (res == null) {
 			return getMethodOrDeclare(s);
@@ -94,23 +107,7 @@ public class ClassADT extends TableADT {
 		}
 	}
 
-	public String putField(String s, ADT t) {
-		return super.put(s, t);
-	}
-
-	public String putMethod(String s, MethodADT t) {
-		return methods.put(s, t);
-	}
-
-	@Override
-	public String put(String s, ADT t) {
-		throw new UnsupportedOperationException("Usage: putField, putMethod");
-	}
-
-	@Override
-	public ADT get(String s) {
-		throw new UnsupportedOperationException("Usage: getField, getMethod");
-	}
+	// ADT operations
 
 	@Override
 	public boolean same(ADT o) {
@@ -137,30 +134,25 @@ public class ClassADT extends TableADT {
 	@Override
 	public String toString() { return name; }
 
-	@Override
-	public String tableToString() {
-		String s = "class " + name + "\n";
-		for (String fieldName : fieldNames()) {
-            ADT t = getField(fieldName);
-            s += TableADT.indent(depth + 1);
-            s += t + " " + fieldName + "\n";
-        }
-        for (String methodName : methodNames()) {
-            MethodADT m = getMethod(methodName);
-            s += TableADT.indent(depth + 1);
-            s += m.tableToString();
-        }
-        return s;
-	}
-
 	/**
-	 * Extended features for offset calculation in Generator
+	 * Extended features for offset calculation in GeneratorVisitor
 	 */
-	public List<MethodADT> allMethods = new ArrayList<>();
-	public List<String> allFields = new ArrayList<>();
+	public boolean hasOffset = false;
+	public LinkedHashMap<String, MethodADT> allMethods = new LinkedHashMap<>();
+	public LinkedHashMap<String, ADT> allFields = new LinkedHashMap<>();
 	public Map<String, Integer> methodToOffset = new HashMap<>();
 	public Map<String, Integer> fieldToOffset = new HashMap<>();
-	public int methodToOffset(String s) { return methodToOffset.get(s); }
+	public int methodToOffset(String s) {
+		if (!hasNoCyclicExtends || !hasOffset) {
+			throw new IllegalStateException(); 
+		}
+		return methodToOffset.get(s);
+	}
 	public int methodToOffset(MethodADT m) { return methodToOffset(m.name); }
-	public int fieldToOffset(String s) { return fieldToOffset.get(s); }
+	public int fieldToOffset(String s) {
+		if (!hasNoCyclicExtends || !hasOffset) {
+			throw new IllegalStateException();
+		}
+		return fieldToOffset.get(s);
+	}
 }
