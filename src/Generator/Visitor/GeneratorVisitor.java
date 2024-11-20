@@ -289,10 +289,10 @@ public class GeneratorVisitor implements Visitor {
         ClassADT c = (ClassADT) n.e.type;
 		MethodADT m = c.getMethod(n.i.s);
 
-        push("%rdi");   // push "this"
+        push("%rdi");   // push this
 	
-        // align before pushing args
-        // why before? only then we know the args immediately
+        // align %rsp before pushing args
+        // why before? only then we know the args would immediately
         //     precede callee's stack frame
         boolean align = (stackBytes + 8*n.el.size()) % 16 != 0;
 		if (align) push("%rax"); 
@@ -304,14 +304,13 @@ public class GeneratorVisitor implements Visitor {
 		}
 
         // place e at %rdi after pushing args
-        // why after? otherwise, below can modify %rdi such that
-        //     an arg like "this" wouldn't have the same meaning
+        // why after? otherwise, code below can modify %rdi such that
+        //     an arg like "this" at %rdi wouldn't have the same meaning
         n.e.accept(this);
-        gen("movq", "%rax", "%rdi");
+        gen("movq", "%rax", "%rdi");    // %rdi = e
 
         // actually call
-		gen("movq", "(%rdi)", "%rax"); 
-		gen("lea", 8 + c.methodToOffset(m) + "(%rax)", "%rax"); // TODO: sus
+		gen("lea", c.methodToOffset(m) + "(%rdi)", "%rax"); // TODO: correct?
 		gen("call", "*(%rax)");  
 
         // pop arguments
@@ -340,7 +339,6 @@ public class GeneratorVisitor implements Visitor {
 
     @Override
     public void visit(IdentifierExp n) {
-        // TODO: logic below is sus
         TableADT owner = n.type.prev;
         switch (owner) {
             case MethodADT m -> {
