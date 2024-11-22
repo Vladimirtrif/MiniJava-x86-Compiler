@@ -41,7 +41,7 @@ public class P1TableVisitor implements Visitor {
 
     @Override
     public void visit(MainClass n) {
-        makeClass(MethodADT.MAIN_METHOD_NAME, null);
+        makeClass(ADT.MAIN_NAME, null);
     }
 
     @Override

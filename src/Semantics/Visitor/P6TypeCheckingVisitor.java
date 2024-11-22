@@ -302,7 +302,7 @@ public class P6TypeCheckingVisitor implements Visitor {
     public void visit(ArrayLength n) {
         n.type = BaseADT.INT;
         n.e.accept(this);
-        if(!BaseADT.INT_ARRAY.equals(n.e.type)) {
+        if(!BaseADT.INT_ARRAY.same(n.e.type)) {
             addError("TypeError: is " + n.e.type.toString() + " but must be an array. In line " + n.line_number);
         }
     }
@@ -415,6 +415,7 @@ public class P6TypeCheckingVisitor implements Visitor {
         ADT t = m.deepgetVarOrDeclare(n.s);
         if (t == null) {
             addError(n.s + " isn't declared. In line " + n.line_number);
+            n.type = UndefinedADT.UNDEFINED;
         }
     }
 
@@ -424,6 +425,7 @@ public class P6TypeCheckingVisitor implements Visitor {
         ADT t = m.deepgetVarOrDeclare(n.s);
         if (t == null) {
             addError(n.s + " isn't declared. In line " + n.line_number);
+            n.type = UndefinedADT.UNDEFINED;
         }
     }
 

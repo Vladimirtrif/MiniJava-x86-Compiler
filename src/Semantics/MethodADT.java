@@ -3,7 +3,6 @@ package Semantics;
 import java.util.*;
 
 public class MethodADT extends ADT {
-	public static final String MAIN_METHOD_NAME = "MAIN";
 	public final String name;
 	public final int numParams;
 	public final List<ADT> paramTypes;

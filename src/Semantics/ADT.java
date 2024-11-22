@@ -3,7 +3,7 @@ package Semantics;
 
 public abstract class ADT {
     public static final String TAB = "  ";
-    public static final String MAIN_NAME = "MAIN";
+    public static final String MAIN_NAME = "0main";
 
     public ADT prev = null; // symbol table
 
