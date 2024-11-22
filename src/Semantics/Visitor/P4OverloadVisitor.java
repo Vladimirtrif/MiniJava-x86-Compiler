@@ -30,7 +30,7 @@ public class P4OverloadVisitor implements Visitor {
         // Add all potential leaf classes
         for (int i = 0; i < n.cl.size(); i++) {
             if (n.cl.get(i) instanceof ClassDeclExtends c) {
-                ClassADT maybeLeaf = global.get(c.j.s);
+                ClassADT maybeLeaf = (ClassADT) global.get(c.j.s);
                 leafs.add(maybeLeaf);
             }
         }
@@ -38,7 +38,7 @@ public class P4OverloadVisitor implements Visitor {
         // Remove all non-leaf classes
         for (int i = 0; i < n.cl.size(); i++) {
             if (n.cl.get(i) instanceof ClassDeclExtends c) {
-                ClassADT nonLeaf = global.get(c.j.s);
+                ClassADT nonLeaf = (ClassADT) global.get(c.j.s);
                 if (leafs.contains(nonLeaf))
                     leafs.remove(nonLeaf);
             }
@@ -54,7 +54,7 @@ public class P4OverloadVisitor implements Visitor {
         Map<String, MethodADT> visited = new HashMap<>();
         for (ClassADT c = cl; c != null; c = c.parent) {
             for (String name : c.methodNames()) {
-                MethodADT method = c.getMethod(name);
+                MethodADT method = (MethodADT) c.getMethod(name);
                 if (visited.containsKey(name)) {
                     MethodADT oldMethod = visited.get(name);
                     // Two methods with the same name and different types

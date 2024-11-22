@@ -37,20 +37,14 @@ public class P3CyclicExtendsVisitor implements Visitor {
     }
 
     @Override
-    public void visit(MainClass n) {
-        ClassADT c = global.get(MethodADT.MAIN_METHOD_NAME);
-        c.hasNoCyclicExtends = true;
-    }
+    public void visit(MainClass n) {}
 
     @Override
-    public void visit(ClassDeclSimple n) {
-        ClassADT c = global.get(n.i.s);
-        c.hasNoCyclicExtends = true;
-    }
+    public void visit(ClassDeclSimple n) {}
 
     @Override
     public void visit(ClassDeclExtends n) {
-        ClassADT c0 = global.get(n.i.s);
+        ClassADT c0 = (ClassADT) global.get(n.i.s);
         if (!okay.contains(c0)) {
             Set<ClassADT> visited = new HashSet<>();
             for (ClassADT c = c0; c.parent != null; c = c.parent) {
@@ -64,7 +58,6 @@ public class P3CyclicExtendsVisitor implements Visitor {
                 okay.add(c);
             }
         }
-        c0.hasNoCyclicExtends = true;
     }
 
     @Override

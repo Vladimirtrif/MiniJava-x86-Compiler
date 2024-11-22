@@ -125,7 +125,7 @@ class MiniJava {
         Program program = (Program) root.value;
 
         // P1
-        System.out.print("[1/5] Running P1TableVisitor...");
+        System.out.print("[1/6] Running P1TableVisitor...");
         P1TableVisitor visitorP1 = new P1TableVisitor();
         program.accept(visitorP1);
         GlobalADT global = visitorP1.getGlobalADT();
@@ -134,17 +134,15 @@ class MiniJava {
             System.out.println("\tpassed");
         } else {
             System.out.println("\tfailed");
-            System.out.println("\nError log:");
-            for (String error : errorsP1) {
-                System.out.println(indent + error);
-            }
-            System.out.println("\nLast symbol table:\n");
-            System.out.println(global.tableToString());
+            System.err.println("\nError log:");
+            for (String error : errorsP1) { System.err.println(indent + error); }
+            System.err.println("\nLast symbol table:\n");
+            System.err.println(global.tableToString());
             return 1;
         }
 
         // P2
-        System.out.print("[2/5] Running P2TableVisitor...");
+        System.out.print("[2/6] Running P2TableVisitor...");
         P2TableVisitor visitorP2 = new P2TableVisitor(global);
         program.accept(visitorP2);
         List<String> errorsP2 = visitorP2.getErrors();
@@ -152,17 +150,15 @@ class MiniJava {
             System.out.println("\tpassed");
         } else {
             System.out.println("\tfailed");
-            System.out.println("\nError log:");
-            for (String error : errorsP2) {
-                System.out.println(indent + error);
-            }
-            System.out.println("\nLast symbol table:\n");
-            System.out.println(global.tableToString());
+            System.err.println("\nError log:");
+            for (String error : errorsP2) { System.err.println(indent + error); }
+            System.err.println("\nLast symbol table:\n");
+            System.err.println(global.tableToString());
             return 1;
         }
 
         // P3
-        System.out.print("[3/5] Running P3CyclicExtendsVisitor...");
+        System.out.print("[3/6] Running P3CyclicExtendsVisitor...");
         P3CyclicExtendsVisitor visitorP3 = new P3CyclicExtendsVisitor(global);
         program.accept(visitorP3);
         List<String> errorsP3 = visitorP3.getErrors();
@@ -170,17 +166,15 @@ class MiniJava {
             System.out.println("\tpassed");
         } else {
             System.out.println("\tfailed");
-            System.out.println("\nError log:");
-            for (String error : errorsP3) {
-                System.out.println(indent + error);
-            }
-            System.out.println("\nLast symbol table:\n");
-            System.out.println(global.tableToString());
+            System.err.println("\nError log:");
+            for (String error : errorsP3) { System.out.println(indent + error); }
+            System.err.println("\nLast symbol table:\n");
+            System.err.println(global.tableToString());
             return 1;
         }
 
         // P4
-        System.out.print("[4/5] Running P4OverloadVisitor...");
+        System.out.print("[4/6] Running P4OverloadVisitor...");
         P4OverloadVisitor visitorP4 = new P4OverloadVisitor(global);
         program.accept(visitorP4);
         List<String> errorsP4 = visitorP4.getErrors();
@@ -188,28 +182,30 @@ class MiniJava {
             System.out.println("\tpassed");
         } else {
             System.out.println("\tfailed");
-            System.out.println("\nError log:");
-            for (String error : errorsP4) {
-                System.out.println(indent + error);
-            }
-            System.out.println("\nLast symbol table:\n");
-            System.out.println(global.tableToString());
+            System.err.println("\nError log:");
+            for (String error : errorsP4) { System.err.println(indent + error); }
+            System.err.println("\nLast symbol table:\n");
+            System.err.println(global.tableToString());
             return 1;
         }
 
         // P5
-        System.out.print("[5/5] Running P5TypeCheckingVisitor...");
-        P5TypeCheckingVisitor visitorP5 = new P5TypeCheckingVisitor(global);
+        System.out.print("[5/6] Running P5OffsetVisitor...");
+        P5OffsetVisitor visitorP5 = new P5OffsetVisitor(global);
+        program.accept(visitorP5);  // impossible to get an error
+        System.out.println("\tpassed");
+
+        // P6
+        System.out.print("[6/6] Running P6TypeCheckingVisitor...");
+        P6TypeCheckingVisitor visitorP6 = new P6TypeCheckingVisitor(global);
         program.accept(visitorP5);
-        List<String> errorsP5 = visitorP5.getErrors();
-        if (errorsP5.isEmpty()) {
+        List<String> errorsP6 = visitorP6.getErrors();
+        if (errorsP6.isEmpty()) {
             System.out.println("\tpassed");
         } else {
             System.out.println("\tfailed");
-            System.out.println("\nError log:");
-            for (String error : errorsP5) {
-                System.out.println(indent + error);
-            }
+            System.err.println("\nError log:");
+            for (String error : errorsP6) { System.err.println(indent + error); }
             System.out.println("\nLast symbol table:\n");
             System.out.println(global.tableToString());
             return 1;

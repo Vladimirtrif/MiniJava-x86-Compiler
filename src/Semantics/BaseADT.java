@@ -26,6 +26,7 @@ public class BaseADT extends ADT {
 
 	@Override
 	public boolean assignable(ADT o) {
+		if (o instanceof UndefinedADT) return true;
 		return this == o;
 	}
 

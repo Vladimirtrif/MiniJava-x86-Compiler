@@ -10,7 +10,7 @@ public class GlobalADT extends ADT {
     }
 
 	public Set<String> classNames() { return table.keySet(); }
-	public ClassADT get(String s) { return (ClassADT) table.get(s); }
+	public ADT get(String s) { return table.get(s); }
 	public ADT getOrDeclare(String s) { return table.getOrDeclare(s); }
 	public String put(String s, ADT t) {
         return table.put(s, t) == null
@@ -26,9 +26,11 @@ public class GlobalADT extends ADT {
     public String tableToString() {
         String s = "global\n";
         for (String className : classNames()) {
-            ClassADT c = (ClassADT) this.get(className);
-            s += SymbolTable.indent(1);
-            s += c.tableToString();
+            ADT t = this.get(className);
+            if (t instanceof ClassADT c) {
+                s += SymbolTable.indent(1);
+                s += c.tableToString();
+            }
         }
         return s;
     }

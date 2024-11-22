@@ -52,22 +52,22 @@ public class P2TableVisitor implements Visitor {
     @Override
     public void visit(MainClass n) {
         // ! Ignores n.i2.s (String[] args) entirely
-        ClassADT c = global.get(MethodADT.MAIN_METHOD_NAME);
-        MethodADT m = new MethodADT(MethodADT.MAIN_METHOD_NAME, 0, VoidADT.VOID, c);
-        String error = c.putMethod(MethodADT.MAIN_METHOD_NAME, m);
+        ClassADT c = (ClassADT) global.get(ADT.MAIN_NAME);
+        MethodADT m = new MethodADT(ADT.MAIN_NAME, 0, VoidADT.VOID, c);
+        String error = c.putMethod(ADT.MAIN_NAME, m);
         if (error != null) errors.add(error);
     }
 
     @Override
     public void visit(ClassDeclSimple n) {
-        st = global.get(n.i.s);
-		for (int i = 0; i < n.vl.size(); i++) {
-			n.vl.get(i).accept(this);
-		}
-		for (int i = 0; i < n.ml.size(); i++) {
-			n.ml.get(i).accept(this);
-		}
-        st = st.prev;
+    st = global.get(n.i.s);
+    for (int i = 0; i < n.vl.size(); i++) {
+        n.vl.get(i).accept(this);
+    }
+    for (int i = 0; i < n.ml.size(); i++) {
+        n.ml.get(i).accept(this);
+    }
+    st = st.prev;
     }
 
     @Override
@@ -78,7 +78,7 @@ public class P2TableVisitor implements Visitor {
         if (parent == null) {
             addErrorForUndefined(parentName, n.line_number);
         }
-        ClassADT c = global.get(n.i.s);
+        ClassADT c = (ClassADT) global.get(n.i.s);
         c.parent = parent;
         st = c;         // Set scope to class
         // Class fields

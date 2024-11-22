@@ -3,7 +3,7 @@ package Semantics;
 import java.util.*;
 
 public class MethodADT extends ADT {
-	public static final String MAIN_METHOD_NAME = "0";
+	public static final String MAIN_METHOD_NAME = "MAIN";
 	public final String name;
 	public final int numParams;
 	public final List<ADT> paramTypes;
@@ -81,6 +81,31 @@ public class MethodADT extends ADT {
         }
         return s;
     }
+
+	public ADT deepgetVar(String s) {
+        ClassADT c = this.getClassADT();
+        ADT t;  // n's type
+
+        // 1. Check method scope
+        t = this.get(s);	// either ADT, Undefined, or null
+        if (t != null) { return t; }
+
+        // 2. Check class scope
+        t = c.deepgetField(s);	// either ADT, Undefined, or null
+        if (t != null) { return t; }
+
+		// 3. Not found
+		return null;
+	}
+
+	public ADT deepgetVarOrDeclare(String s) {
+		ADT t = this.deepgetVar(s);
+		if (t == null) { 
+			return this.getOrDeclare(s);	// null
+		} else {
+			return t;
+		}
+	}
 
 	/**
 	 * Extended features for offset calculation in Generator

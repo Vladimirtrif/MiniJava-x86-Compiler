@@ -5,9 +5,6 @@ import java.util.*;
 public class SymbolTable {
 
     public static final String TAB = "  ";
-    // public static final int GLOBAL_DEPTH = 0;
-    // public static final int CLASS_DEPTH = 1;
-    // public static final int METHOD_DEPTH = 2;
 
     private final LinkedHashMap<String, ADT> table;
 

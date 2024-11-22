@@ -127,7 +127,7 @@ public class GeneratorVisitor implements Visitor {
     private void vtable() {
         ClassADT c = (ClassADT) st;
         String cid = c.name;
-        int mem = 8 + 8 * c.allFields.size();
+        int mem = 8 + 8 * c.deepFields.size();
 
 		// 1. Generate constructor
 		gen(cid + "$" + cid + ":");
@@ -154,7 +154,7 @@ public class GeneratorVisitor implements Visitor {
         String parent = c.parent == null ? "0" : c.parent.name + "$$";
         println(c.name + "$$: .quad " + parent);
 		gen(".quad " + c.name + "$" + c.name);
-		for(MethodADT m : c.allMethods.values()) {
+		for(MethodADT m : c.deepMethods.values()) {
 			gen(".quad " +  m.getClassADT().name + "$" + m.name);
 		}
 		println();
@@ -186,7 +186,7 @@ public class GeneratorVisitor implements Visitor {
     @Override
     public void visit(MethodDecl n) {
         ClassADT c = (ClassADT) st;
-	    MethodADT m = c.getMethod(n.i.s);
+	    MethodADT m = (MethodADT) c.getMethod(n.i.s);
         st = m;
 
 		// generate method label
@@ -320,7 +320,7 @@ public class GeneratorVisitor implements Visitor {
     @Override
     public void visit(Call n) { // e.i(el);
         ClassADT c = (ClassADT) n.e.type;
-		MethodADT m = c.getMethod(n.i.s);
+		MethodADT m = (MethodADT) c.getMethod(n.i.s);
 
         push("%rdi");   // push "this"
 	

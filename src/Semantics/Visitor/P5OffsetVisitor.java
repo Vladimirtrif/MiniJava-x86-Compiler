@@ -1,24 +1,18 @@
-package Generator.Visitor;
+package Semantics.Visitor;
 
 import AST.*;
 import AST.Visitor.Visitor;
 import Semantics.*;
 import java.util.*;
 
-public class OffsetVisitor implements Visitor {
+public class P5OffsetVisitor implements Visitor {
 
     private final GlobalADT global;
     private ADT st;
-    private final List<String> errors;
 
-    public OffsetVisitor(GlobalADT global) {
+    public P5OffsetVisitor(GlobalADT global) {
         this.global = global;
         st = global;
-        errors = new ArrayList<>();
-    }
-
-    public List<String> getErrors() {
-        return errors;
     }
 
     @Override
@@ -28,8 +22,8 @@ public class OffsetVisitor implements Visitor {
         // Add all potential leaf classes
         for (int i = 0; i < n.cl.size(); i++) {
             switch (n.cl.get(i)) {
-                case ClassDeclSimple c -> leafs.add(global.get(c.i.s));
-                case ClassDeclExtends c -> leafs.add(global.get(c.i.s));
+                case ClassDeclSimple c -> leafs.add((ClassADT) global.get(c.i.s));
+                case ClassDeclExtends c -> leafs.add((ClassADT) global.get(c.i.s));
                 default -> throw new IllegalStateException();
             }
         }
@@ -37,7 +31,7 @@ public class OffsetVisitor implements Visitor {
         // Remove all non-leaf classes
         for (int i = 0; i < n.cl.size(); i++) {
             if (n.cl.get(i) instanceof ClassDeclExtends c) {
-                ClassADT nonLeaf = global.get(c.j.s);
+                ClassADT nonLeaf = (ClassADT) global.get(c.j.s);
                 if (leafs.contains(nonLeaf)) {
                     leafs.remove(nonLeaf);
                 }
@@ -63,26 +57,26 @@ public class OffsetVisitor implements Visitor {
         // Copy parent's fields and methods
         if (c.parent != null) {
             assignOffset(c.parent);
-            c.allFields.putAll(c.parent.allFields);
-            c.allMethods.putAll(c.parent.allMethods);
+            c.deepFields.putAll(c.parent.deepFields);
+            c.deepMethods.putAll(c.parent.deepMethods);
         }
 
         // Insert all fields & methods
         for (String name : c.fieldNames()) {
-            c.allFields.put(name, c.getField(name));
+            c.deepFields.put(name, c.getField(name));
         }
         for (String name : c.methodNames()) {
-            c.allMethods.put(name, c.getMethod(name));
+            c.deepMethods.put(name, (MethodADT) c.getMethod(name));
         }
 
         // Invert the maps for O(1) offset access
         i = 8;
-        for (String name : c.allFields.keySet()) {
+        for (String name : c.deepFields.keySet()) {
             c.fieldToOffset.put(name, i);
             i += 8;
         }
         i = 8;
-        for (String name : c.allMethods.keySet()) {
+        for (String name : c.deepMethods.keySet()) {
             c.methodToOffset.put(name, i);
             i += 8;
         }
@@ -111,7 +105,7 @@ public class OffsetVisitor implements Visitor {
     @Override
     public void visit(MethodDecl n) {
         ClassADT c = (ClassADT) st;
-        MethodADT m = c.getMethod(n.i.s);
+        MethodADT m = (MethodADT) c.getMethod(n.i.s);
         int i = 0;
         for (String name : m.varNames()) {
             if (i < m.numParams) {

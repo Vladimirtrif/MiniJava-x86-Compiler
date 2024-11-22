@@ -12,7 +12,7 @@ public class VoidADT extends ADT {
 
 	@Override
 	public boolean assignable(ADT o) {
-		return this == o;
+		return same(o);
 	}
 
 	@Override
