@@ -94,9 +94,6 @@ public class P6TypeCheckingVisitor implements Visitor {
         st = c.getMethod(n.i.s);
         n.type = n.i.type = st;
 
-        // visit return type
-        n.t.accept(this);
-
         // visit params
         for (int i = 0; i < n.fl.size(); i++) {
             n.fl.get(i).accept(this);
@@ -112,8 +109,14 @@ public class P6TypeCheckingVisitor implements Visitor {
             n.sl.get(i).accept(this);
         }
 
+        // visit return type
+        n.t.accept(this);
+
         // visit return exp
         n.e.accept(this);
+        if (!n.t.type.same(n.e.type)) {
+            addError("Expected return type '" + n.t.type + "', but got '" + n.e.type + "' instead. Error on line " + n.line_number);
+        }
 
         st = st.prev;
     }
@@ -181,8 +184,8 @@ public class P6TypeCheckingVisitor implements Visitor {
     public void visit(Print n) {    // System.out.println(e);
         n.type = null;
         n.e.accept(this);
-        if(!(BaseADT.INT.same(n.e.type) || BaseADT.BOOLEAN.same(n.e.type))) {
-            addError("Expression inside print statement has type " + n.e.type.toString() + " but must be int or boolean. On line " + n.line_number);
+        if(!(BaseADT.INT.same(n.e.type))) {
+            addError("Expression inside print statement has type " + n.e.type.toString() + " but must be int. On line " + n.line_number);
         }
     }
 

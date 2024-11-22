@@ -54,7 +54,7 @@ public class P2TableVisitor implements Visitor {
         // ! Ignores n.i2.s (String[] args) entirely
         ClassADT c = (ClassADT) global.get(ADT.MAIN_NAME);
         MethodADT m = new MethodADT(ADT.MAIN_NAME, 0, VoidADT.VOID, c);
-        String error = c.putMethod(ADT.MAIN_NAME, m);
+        String error = c.putMethod(ADT.MAIN_NAME, m, n.line_number);
         if (error != null) errors.add(error);
     }
 
@@ -108,7 +108,7 @@ public class P2TableVisitor implements Visitor {
             n.vl.get(i).accept(this);
         }
         st = st.prev;   // Set scope back to c
-        String error = c.putMethod(name, m);
+        String error = c.putMethod(name, m, n.line_number);
         if (error != null) errors.add(error);
     }
 
@@ -119,7 +119,7 @@ public class P2TableVisitor implements Visitor {
         t.prev = st;
         String error;
         switch (st) {
-            case ClassADT c -> error = c.putField(name, t);
+            case ClassADT c -> error = c.putField(name, t, n.line_number);
             case MethodADT m -> error = m.put(name, t);
             default -> throw new IllegalStateException("Unreachable code.");
         }
@@ -133,7 +133,7 @@ public class P2TableVisitor implements Visitor {
         t.prev = st;
         String error;
         switch (st) {
-            case ClassADT c -> error = c.putField(name, t);
+            case ClassADT c -> error = c.putField(name, t, n.line_number);
             case MethodADT m -> error = m.put(name, t);
             default -> throw new IllegalStateException("Unreachable code.");
         }

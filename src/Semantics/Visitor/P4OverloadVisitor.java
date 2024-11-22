@@ -27,11 +27,10 @@ public class P4OverloadVisitor implements Visitor {
     public void visit(Program n) {
         Set<ClassADT> leafs = new HashSet<>();
 
-        // Add all potential leaf classes
+        // Add all leaf classes with parents
         for (int i = 0; i < n.cl.size(); i++) {
             if (n.cl.get(i) instanceof ClassDeclExtends c) {
-                ClassADT maybeLeaf = (ClassADT) global.get(c.j.s);
-                leafs.add(maybeLeaf);
+                leafs.add((ClassADT) global.get(c.i.s));
             }
         }
 

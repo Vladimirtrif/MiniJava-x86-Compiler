@@ -37,17 +37,25 @@ public class ClassADT extends ADT {
 	public ADT getMethodOrDeclare(String s) { return methods.getOrDeclare(s); }
 
 	public String putField(String s, ADT t) {
-        return fields.put(s, t) == null
-            ? null
+        return fields.put(s, t) == null ? null
             : "DuplicateNameError: Duplicate field name '" + s 
 			+ "' declared at class " + name + ".";
     }
+	public String putField(String s, ADT t, int lineNumber) {
+        return fields.put(s, t) == null ? null
+            : "DuplicateNameError: Duplicate field name '" + s 
+			+ "' declared at class " + name + " (line " + lineNumber + ").";
+    }
 
 	public String putMethod(String s, ADT t) {
-        return methods.put(s, t) == null
-            ? null
+        return methods.put(s, t) == null ? null
             : "DuplicateNameError: Duplicate method name '" + s 
 			+ "' declared at class " + name + ".";
+    }
+	public String putMethod(String s, ADT t, int lineNumber) {
+        return methods.put(s, t) == null ? null
+            : "DuplicateNameError: Duplicate method name '" + s 
+			+ "' declared at class " + name + " (line " + lineNumber + ").";
     }
 
 	public String tableToString() {

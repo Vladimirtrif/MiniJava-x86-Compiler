@@ -41,22 +41,22 @@ public class P1TableVisitor implements Visitor {
 
     @Override
     public void visit(MainClass n) {
-        makeClass(ADT.MAIN_NAME, null);
+        makeClass(ADT.MAIN_NAME, null, n.line_number);
     }
 
     @Override
     public void visit(ClassDeclSimple n) {
-        makeClass(n.i.s, null);
+        makeClass(n.i.s, null, n.line_number);
     }
 
     @Override
     public void visit(ClassDeclExtends n) {
-        makeClass(n.i.s, n.j.s);
+        makeClass(n.i.s, n.j.s, n.line_number);
     }
 
-    private void makeClass(String name, String parentName) {
+    private void makeClass(String name, String parentName, int lineNumber) {
         ADT t = new ClassADT(name, parentName, global);
-        String error = global.put(name, t);
+        String error = global.put(name, t, lineNumber);
         if (error != null) {
             errors.add(error);
         }
