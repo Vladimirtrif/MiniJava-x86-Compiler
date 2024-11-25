@@ -256,7 +256,7 @@ class MiniJava {
         System.out.println("Generating code");
         GeneratorVisitor gv = new GeneratorVisitor(global);
         program.accept(gv);
-        return 1;
+        return 0;
     }
 
     // Prints usage information for the command-line tool
