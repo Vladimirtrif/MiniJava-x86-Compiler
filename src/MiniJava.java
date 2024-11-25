@@ -1,3 +1,4 @@
+import Generator.Visitor.GeneratorVisitor;
 import Scanner.*;
 import Parser.*;
 import AST.*;
@@ -11,22 +12,44 @@ import java.io.*;
 
 class MiniJava {
 
-    public static void main(String[] args) throws FileNotFoundException {
-        if (args.length != 2) {
-            printUsage();
-            return;
+    class Truple <A, B, C> {
+        public A first;
+        public B second;
+        public C third;
+
+        Truple(A a, B b, C c) {
+            first = a;
+            second = b;
+            third = c;
         }
+    }
 
-        String option = args[0];
-        String fpath = args[1];
+    public void main(String[] args) throws FileNotFoundException {
+        boolean is_S, is_P, is_A, is_T;
+        String fpath;
+        if(args.length == 1) {
+            is_S = false;
+            is_P = false;
+            is_A = false;
+            is_T = false;
+            fpath = args[0];
+        } else {
+            if (args.length != 2) {
+                printUsage();
+                return;
+            }
 
-        boolean is_S = option.equals("-S");
-        boolean is_P = option.equals("-P");
-        boolean is_A = option.equals("-A");
-        boolean is_T = option.equals("-T");
-        if (!isValidOption(is_S, is_P, is_A, is_T)) {
-            printUsage();
-            return;
+            String option = args[0];
+            fpath = args[1];
+
+            is_S = option.equals("-S");
+            is_P = option.equals("-P");
+            is_A = option.equals("-A");
+            is_T = option.equals("-T");
+            if (!isValidOption(is_S, is_P, is_A, is_T)) {
+                printUsage();
+                return;
+            }
         }
         Reader in = new BufferedReader(new FileReader(fpath));
         int exitCode = executeOption(is_S, is_P, is_A, is_T, in);
@@ -40,7 +63,7 @@ class MiniJava {
 
     // Executes the selected option and returns the exit code
     @SuppressWarnings("CallToPrintStackTrace")
-    private static int executeOption(boolean is_S, boolean is_P, boolean is_A, boolean is_T, Reader in) {
+    private int executeOption(boolean is_S, boolean is_P, boolean is_A, boolean is_T, Reader in) {
         int exitCode = 0;
         try {
             if (is_S) {
@@ -50,7 +73,9 @@ class MiniJava {
             } else if (is_A) {
                 exitCode = runParserAbstract(in);
             } else if (is_T) {
-                exitCode = runTypeChecker(in);
+                exitCode = runTypeChecker(in).first;
+            } else {
+                exitCode = runCodeGen(in);
             }
         } catch (IOException e) {
             System.err.println("Unexpected internal compiler error: " + e);
@@ -105,7 +130,7 @@ class MiniJava {
 
     // Type-Check functionality
     @SuppressWarnings("CallToPrintStackTrace")
-    private static int runTypeChecker(Reader in) {
+    private Truple<Integer, Symbol, GlobalADT> runTypeChecker(Reader in) {
         ComplexSymbolFactory sf = new ComplexSymbolFactory();
         scanner s = new scanner(in, sf);
         parser p = new parser(s, sf);
@@ -118,7 +143,7 @@ class MiniJava {
         } catch (Exception e) {
             System.err.println("Unexpected parser error: " + e.toString());
             e.printStackTrace();
-            return 1;
+            return new Tuple(1, null);
         }
 
         // Run type-checking visitors
@@ -138,7 +163,7 @@ class MiniJava {
             for (String error : errorsP1) { System.err.println(indent + error); }
             System.err.println("\nLast symbol table:\n");
             System.err.println(global.tableToString());
-            return 1;
+            return new Truple(1, root, global);
         }
 
         // P2
@@ -154,7 +179,7 @@ class MiniJava {
             for (String error : errorsP2) { System.err.println(indent + error); }
             System.err.println("\nLast symbol table:\n");
             System.err.println(global.tableToString());
-            return 1;
+            return new Truple(1, root, global);
         }
 
         // P3
@@ -170,7 +195,7 @@ class MiniJava {
             for (String error : errorsP3) { System.out.println(indent + error); }
             System.err.println("\nLast symbol table:\n");
             System.err.println(global.tableToString());
-            return 1;
+            return new Truple(1, root, global);
         }
 
         // P4
@@ -186,7 +211,7 @@ class MiniJava {
             for (String error : errorsP4) { System.err.println(indent + error); }
             System.err.println("\nLast symbol table:\n");
             System.err.println(global.tableToString());
-            return 1;
+            return new Truple(1, root, global);
         }
 
         // P5
@@ -208,12 +233,30 @@ class MiniJava {
             for (String error : errorsP6) { System.err.println(indent + error); }
             System.out.println("\nLast symbol table:\n");
             System.out.println(global.tableToString());
-            return 1;
+            return new Truple(1, root, global);
         }
 
         System.out.println("\nLast symbol table:\n");
         System.out.println(global.tableToString());
-        return 0;
+        return new Truple(0, root, global);
+    }
+
+    // Code-Gen functionality
+    @SuppressWarnings("CallToPrintStackTrace")
+    private int runCodeGen(Reader in) {
+        //run typechecking ()
+        Truple<Integer, Symbol, GlobalADT> tmp = runTypeChecker(in);
+        int exitCode = tmp.first;
+        if(exitCode == 1) {
+            return 1;
+        }
+        Program program = (Program) tmp.second.value;
+        GlobalADT global = tmp.third;
+        //run code-gen
+        System.out.println("Generating code");
+        GeneratorVisitor gv = new GeneratorVisitor(global);
+        program.accept(gv);
+        return 1;
     }
 
     // Prints usage information for the command-line tool
