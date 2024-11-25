@@ -24,7 +24,7 @@ public class MethodADT extends ADT {
 	public ADT getOrDeclare(String s) { return table.getOrDeclare(s); }
 	public String put(String s, ADT t) {
 		ADT res = table.put(s, t);
-		if (table.size() < numParams) {
+		if (table.size() <= numParams) {
 			paramTypes.add(t);
 		}
         return res == null

@@ -224,7 +224,7 @@ class MiniJava {
         // P6
         System.out.print("[6/6] Running P6TypeCheckingVisitor...");
         P6TypeCheckingVisitor visitorP6 = new P6TypeCheckingVisitor(global);
-        program.accept(visitorP5);
+        program.accept(visitorP6);
         List<String> errorsP6 = visitorP6.getErrors();
         if (errorsP6.isEmpty()) {
             System.out.println("\tpassed");
