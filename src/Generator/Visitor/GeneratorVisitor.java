@@ -10,7 +10,11 @@ public class GeneratorVisitor implements Visitor {
     private final GlobalADT global;
     private ADT st;
     private static final String TAB = "\t";
-    private int stackBytes;     // number of bytes currently allocated on stack
+    private int stackBytes; // number of bytes currently allocated on stack
+    private int ifHash;
+    private int whileHash;
+    private int compareHash;
+
 
     // Constructor
     public GeneratorVisitor(GlobalADT global) {
@@ -18,6 +22,9 @@ public class GeneratorVisitor implements Visitor {
         this.global = global;
         st = global;
         stackBytes = 0;
+        ifHash = 0;
+        whileHash = 0;
+        compareHash = 0;
     }
 
     @Override
@@ -181,7 +188,9 @@ public class GeneratorVisitor implements Visitor {
     }
 
     @Override
-    public void visit(VarDecl n) {}
+    public void visit(VarDecl n) {
+        throw new IllegalStateException("Unreachable code.");
+    }
 
     @Override
     public void visit(MethodDecl n) {
@@ -206,7 +215,9 @@ public class GeneratorVisitor implements Visitor {
     }
 
     @Override
-    public void visit(Formal n) {}
+    public void visit(Formal n) {
+        throw new IllegalStateException("Unreachable code.");
+    }
 
     @Override
     public void visit(Block n) {
@@ -217,12 +228,40 @@ public class GeneratorVisitor implements Visitor {
 
     @Override
     public void visit(If n) {
-        // TODO
+        //save hash for this if stmnt to avoid children mutating
+        int currHash = ifHash;
+        ifHash++;
+        //evaluate condition and put it into %rax
+        n.e.accept(this);
+        //test condition, if false jump to else
+        gen("compq", 0,"%rax");
+        gen("je else" + currHash);
+        //generate else code
+        n.s1.accept(this);
+        //jump to end of if (skip else)
+        gen("jmp done" + currHash);
+        //label else and generate else code
+        gen("else" + currHash + ":");
+        n.s2.accept(this);
+        //label end of if else stmnt
+        gen("done" + currHash + ":");
     }
 
     @Override
     public void visit(While n) {
-        // TODO
+        //save hash for this while stmnt to avoid children mutating
+        int currHash = whileHash;
+        whileHash++;
+        gen("jmp test" + currHash);
+        ///label and generate loop code
+        gen("loop" + currHash + ":");
+        n.s.accept(this);
+        //label test and generate code evaluating test
+        gen("test" + currHash + ":");
+        n.e.accept(this);
+        //jump back to loop if test is true
+        gen("compq", 1,"%rax");
+        gen("je loop" + currHash);
     }
 
     @Override
@@ -270,12 +309,29 @@ public class GeneratorVisitor implements Visitor {
 
     @Override
     public void visit(And n) {
-        // TODO
+        n.e2.accept(this);
+        gen("movq", "%rax", "%rdx");
+        n.e1.accept(this);
+        gen("andq", "%rdx", "%rax");
     }
 
     @Override
     public void visit(LessThan n) {
-        // TODO
+        int currHash = compareHash;
+        compareHash++;
+        n.e2.accept(this);
+        gen("movq", "%rax", "%rdx");
+        n.e1.accept(this);
+        // sets codes with rax - rdx ie e1 - e2
+        gen("compq", "%rdx", "%rax");
+        //jump to lessThan if e1 is less than e2
+        gen("jl lessThan" + currHash );
+        //move false to rax if e1 isn't less than e2
+        gen("movq", 0, "%rax");
+        gen("jmp finish" + currHash);
+        gen("lessThan" + currHash + ":");
+        gen("movq", 1, "%rax");
+        gen("finish" + currHash + ":");
     }
 
     @Override
@@ -449,7 +505,8 @@ public class GeneratorVisitor implements Visitor {
 
     @Override
     public void visit(Not n) {
-        // TODO
+        n.e.accept(this);
+        gen("notq %rax");
     }
 
     @Override
