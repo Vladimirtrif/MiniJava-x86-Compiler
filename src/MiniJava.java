@@ -10,21 +10,22 @@ import java_cup.runtime.ComplexSymbolFactory;
 import java.util.*;
 import java.io.*;
 
+class Truple <A, B, C> {
+    public A first;
+    public B second;
+    public C third;
+
+    Truple(A a, B b, C c) {
+        first = a;
+        second = b;
+        third = c;
+    }
+}
+
 class MiniJava {
 
-    class Truple <A, B, C> {
-        public A first;
-        public B second;
-        public C third;
 
-        Truple(A a, B b, C c) {
-            first = a;
-            second = b;
-            third = c;
-        }
-    }
-
-    public void main(String[] args) throws FileNotFoundException {
+    public static void main(String[] args) throws FileNotFoundException {
         boolean is_S, is_P, is_A, is_T;
         String fpath;
         if(args.length == 1) {
@@ -63,7 +64,7 @@ class MiniJava {
 
     // Executes the selected option and returns the exit code
     @SuppressWarnings("CallToPrintStackTrace")
-    private int executeOption(boolean is_S, boolean is_P, boolean is_A, boolean is_T, Reader in) {
+    private static int executeOption(boolean is_S, boolean is_P, boolean is_A, boolean is_T, Reader in) {
         int exitCode = 0;
         try {
             if (is_S) {
@@ -130,7 +131,7 @@ class MiniJava {
 
     // Type-Check functionality
     @SuppressWarnings("CallToPrintStackTrace")
-    private Truple<Integer, Symbol, GlobalADT> runTypeChecker(Reader in) {
+    private static Truple<Integer, Symbol, GlobalADT> runTypeChecker(Reader in) {
         ComplexSymbolFactory sf = new ComplexSymbolFactory();
         scanner s = new scanner(in, sf);
         parser p = new parser(s, sf);
@@ -143,7 +144,7 @@ class MiniJava {
         } catch (Exception e) {
             System.err.println("Unexpected parser error: " + e.toString());
             e.printStackTrace();
-            return new Tuple(1, null);
+            return new Truple(1, null, null);
         }
 
         // Run type-checking visitors
@@ -243,7 +244,7 @@ class MiniJava {
 
     // Code-Gen functionality
     @SuppressWarnings("CallToPrintStackTrace")
-    private int runCodeGen(Reader in) {
+    private static int runCodeGen(Reader in) {
         //run typechecking ()
         Truple<Integer, Symbol, GlobalADT> tmp = runTypeChecker(in);
         int exitCode = tmp.first;
@@ -262,6 +263,7 @@ class MiniJava {
     // Prints usage information for the command-line tool
     private static void printUsage() {
         System.out.println("Usage:");
+        System.out.println("\tScanner: MiniJava.java <filename>");
         System.out.println("\tScanner: MiniJava.java -S <filename>");
         System.out.println("\tParser (Pretty-Print): MiniJava.java -P <filename>");
         System.out.println("\tParser (Abstract-Print): MiniJava.java -A <filename>");
