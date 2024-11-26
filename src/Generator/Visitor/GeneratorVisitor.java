@@ -234,7 +234,7 @@ public class GeneratorVisitor implements Visitor {
         //evaluate condition and put it into %rax
         n.e.accept(this);
         //test condition, if false jump to else
-        gen("compq", 0,"%rax");
+        gen("cmpq", 0,"%rax");
         gen("je else" + currHash);
         //generate else code
         n.s1.accept(this);
@@ -260,7 +260,7 @@ public class GeneratorVisitor implements Visitor {
         gen("test" + currHash + ":");
         n.e.accept(this);
         //jump back to loop if test is true
-        gen("compq", 1,"%rax");
+        gen("cmpq", 1,"%rax");
         gen("je loop" + currHash);
     }
 
@@ -323,7 +323,7 @@ public class GeneratorVisitor implements Visitor {
         gen("movq", "%rax", "%rdx");
         n.e1.accept(this);
         // sets codes with rax - rdx ie e1 - e2
-        gen("compq", "%rdx", "%rax");
+        gen("cmpq", "%rdx", "%rax");
         //jump to lessThan if e1 is less than e2
         gen("jl lessThan" + currHash );
         //move false to rax if e1 isn't less than e2
