@@ -74,7 +74,7 @@ class MiniJava {
             } else if (is_A) {
                 exitCode = runParserAbstract(in);
             } else if (is_T) {
-                exitCode = runTypeChecker(in).first;
+                exitCode = runTypeChecker(in, true).first;
             } else {
                 exitCode = runCodeGen(in);
             }
@@ -131,7 +131,7 @@ class MiniJava {
 
     // Type-Check functionality
     @SuppressWarnings("CallToPrintStackTrace")
-    private static Truple<Integer, Symbol, GlobalADT> runTypeChecker(Reader in) {
+    private static Truple<Integer, Symbol, GlobalADT> runTypeChecker(Reader in, boolean printTables) {
         ComplexSymbolFactory sf = new ComplexSymbolFactory();
         scanner s = new scanner(in, sf);
         parser p = new parser(s, sf);
@@ -151,13 +151,18 @@ class MiniJava {
         Program program = (Program) root.value;
 
         // P1
-        System.out.print("[1/6] Running P1TableVisitor...");
+        if(printTables) {
+            System.out.print("[1/6] Running P1TableVisitor...");
+        }
+
         P1TableVisitor visitorP1 = new P1TableVisitor();
         program.accept(visitorP1);
         GlobalADT global = visitorP1.getGlobalADT();
         List<String> errorsP1 = visitorP1.getErrors();
         if (errorsP1.isEmpty()) {
-            System.out.println("\tpassed");
+            if(printTables) {
+                System.out.println("\tpassed");
+            }
         } else {
             System.out.println("\tfailed");
             System.err.println("\nError log:");
@@ -168,12 +173,16 @@ class MiniJava {
         }
 
         // P2
-        System.out.print("[2/6] Running P2TableVisitor...");
+        if(printTables) {
+            System.out.print("[2/6] Running P2TableVisitor...");
+        }
         P2TableVisitor visitorP2 = new P2TableVisitor(global);
         program.accept(visitorP2);
         List<String> errorsP2 = visitorP2.getErrors();
         if (errorsP2.isEmpty()) {
-            System.out.println("\tpassed");
+            if(printTables) {
+                System.out.println("\tpassed");
+            }
         } else {
             System.out.println("\tfailed");
             System.err.println("\nError log:");
@@ -184,12 +193,16 @@ class MiniJava {
         }
 
         // P3
-        System.out.print("[3/6] Running P3CyclicExtendsVisitor...");
+        if(printTables) {
+            System.out.print("[3/6] Running P3CyclicExtendsVisitor...");
+        }
         P3CyclicExtendsVisitor visitorP3 = new P3CyclicExtendsVisitor(global);
         program.accept(visitorP3);
         List<String> errorsP3 = visitorP3.getErrors();
         if (errorsP3.isEmpty()) {
-            System.out.println("\tpassed");
+            if(printTables) {
+                System.out.println("\tpassed");
+            }
         } else {
             System.out.println("\tfailed");
             System.err.println("\nError log:");
@@ -200,12 +213,16 @@ class MiniJava {
         }
 
         // P4
-        System.out.print("[4/6] Running P4OverloadVisitor...");
+        if(printTables) {
+            System.out.print("[4/6] Running P4OverloadVisitor...");
+        }
         P4OverloadVisitor visitorP4 = new P4OverloadVisitor(global);
         program.accept(visitorP4);
         List<String> errorsP4 = visitorP4.getErrors();
         if (errorsP4.isEmpty()) {
-            System.out.println("\tpassed");
+            if(printTables) {
+                System.out.println("\tpassed");
+            }
         } else {
             System.out.println("\tfailed");
             System.err.println("\nError log:");
@@ -216,18 +233,26 @@ class MiniJava {
         }
 
         // P5
-        System.out.print("[5/6] Running P5OffsetVisitor...");
+        if(printTables) {
+            System.out.print("[5/6] Running P5OffsetVisitor...");
+        }
         P5OffsetVisitor visitorP5 = new P5OffsetVisitor(global);
         program.accept(visitorP5);  // impossible to get an error
-        System.out.println("\tpassed");
+        if(printTables) {
+            System.out.println("\tpassed");
+        }
 
         // P6
-        System.out.print("[6/6] Running P6TypeCheckingVisitor...");
+        if(printTables) {
+            System.out.print("[6/6] Running P6TypeCheckingVisitor...");
+        }
         P6TypeCheckingVisitor visitorP6 = new P6TypeCheckingVisitor(global);
         program.accept(visitorP6);
         List<String> errorsP6 = visitorP6.getErrors();
         if (errorsP6.isEmpty()) {
-            System.out.println("\tpassed");
+            if(printTables) {
+                System.out.println("\tpassed");
+            }
         } else {
             System.out.println("\tfailed");
             System.err.println("\nError log:");
@@ -236,9 +261,10 @@ class MiniJava {
             System.out.println(global.tableToString());
             return new Truple(1, root, global);
         }
-
-        System.out.println("\nLast symbol table:\n");
-        System.out.println(global.tableToString());
+        if(printTables) {
+            System.out.println("\nLast symbol table:\n");
+            System.out.println(global.tableToString());
+        }
         return new Truple(0, root, global);
     }
 
@@ -246,7 +272,7 @@ class MiniJava {
     @SuppressWarnings("CallToPrintStackTrace")
     private static int runCodeGen(Reader in) {
         //run typechecking ()
-        Truple<Integer, Symbol, GlobalADT> tmp = runTypeChecker(in);
+        Truple<Integer, Symbol, GlobalADT> tmp = runTypeChecker(in, false);
         int exitCode = tmp.first;
         if(exitCode == 1) {
             return 1;
@@ -254,9 +280,9 @@ class MiniJava {
         Program program = (Program) tmp.second.value;
         GlobalADT global = tmp.third;
         //run code-gen
-        System.out.println("Generating code");
         GeneratorVisitor gv = new GeneratorVisitor(global);
         program.accept(gv);
+        System.out.println(gv.toString());
         return 0;
     }
 
