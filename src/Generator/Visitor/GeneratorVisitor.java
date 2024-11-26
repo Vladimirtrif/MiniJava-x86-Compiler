@@ -141,7 +141,7 @@ public class GeneratorVisitor implements Visitor {
 		prologue();
 		push("%rdi");
 		gen("movq", mem, "%rdi");
-		call("mjmalloc");    // %rax points to obj
+		call("mjcalloc");    // %rax points to obj
 		pop("%rdi");
 
 		// set pointer to base class dispatch table. 
@@ -462,7 +462,7 @@ public class GeneratorVisitor implements Visitor {
         // 1. Allocate array of 8 * (e + 1) bytes
 		push("%rdi");
         gen("movq", "%rax", "%rdi");    // %rdi = 8 * (len + 1)
-		call("mjmalloc");               // %rax = arr_ptr
+		call("mjcalloc");               // %rax = arr_ptr
 		pop("%rdi");
     
         // 2. Ready for for-loop
