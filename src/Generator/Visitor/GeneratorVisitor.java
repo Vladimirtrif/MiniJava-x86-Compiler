@@ -129,6 +129,7 @@ public class GeneratorVisitor implements Visitor {
 		gen(".data");
 		println(n.i1.s + "$$: " + ".quad 0");
 		println();
+        gen(".text");
     }
 
     private void vtable() {
@@ -164,6 +165,7 @@ public class GeneratorVisitor implements Visitor {
 		for(MethodADT m : c.deepMethods.values()) {
 			gen(".quad " +  m.getClassADT().name + "$" + m.name);
 		}
+        gen(".text");
 		println();
     }
 
