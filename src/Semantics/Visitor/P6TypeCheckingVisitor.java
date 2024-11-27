@@ -184,7 +184,7 @@ public class P6TypeCheckingVisitor implements Visitor {
     public void visit(Print n) {    // System.out.println(e);
         n.type = null;
         n.e.accept(this);
-        if(!(BaseADT.INT.same(n.e.type)) && !(BaseADT.BOOLEAN.same(n.e.type)) ) {
+        if(!BaseADT.INT.same(n.e.type) ) {
             addError("Expression inside print statement has type " + n.e.type.toString() + " but must be int. On line " + n.line_number);
         }
     }

@@ -7,14 +7,11 @@ class TestPrint {
 class BasicTests {
 
     public int runTests() {
-        // System.out.println(10);
-        // System.out.println(11 + 9);
-        // System.out.println(40 - 10);
-        // System.out.println(25 * 2);
-        // System.out.println(true);
-        // System.out.println(true && false);
-        // System.out.println(20 < 21);
-        // System.out.println(!true);
+        System.out.println(10);
+        System.out.println(11 + 9);
+        System.out.println(40 - 10);
+        System.out.println(25 * 2);
+        System.out.println(true);
         return 0;
     }
 

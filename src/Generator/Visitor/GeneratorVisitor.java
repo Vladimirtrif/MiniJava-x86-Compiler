@@ -129,7 +129,6 @@ public class GeneratorVisitor implements Visitor {
 		gen(".data");
 		println(n.i1.s + "$$: " + ".quad 0");
 		println();
-        gen(".text");
     }
 
     private void vtable() {
@@ -138,7 +137,7 @@ public class GeneratorVisitor implements Visitor {
         int mem = 8 + 8 * c.deepFields.size();
 
 		// 1. Generate constructor
-		gen(cid + "$" + cid + ":");
+		println(cid + "$" + cid + ":");
 		prologue();
 		push("%rdi");
 		gen("movq", mem, "%rdi");
@@ -165,7 +164,6 @@ public class GeneratorVisitor implements Visitor {
 		for(MethodADT m : c.deepMethods.values()) {
 			gen(".quad " +  m.getClassADT().name + "$" + m.name);
 		}
-        gen(".text");
 		println();
     }
 
@@ -201,7 +199,8 @@ public class GeneratorVisitor implements Visitor {
         st = m;
 
 		// generate method label
-		gen(c.name + "$" + m.name + ":");   // "class$method:"
+        gen(".text");
+		println(c.name + "$" + m.name + ":");   // "class$method:"
 
 		prologue();
 		if (n.vl.size() > 0) {
@@ -401,7 +400,8 @@ public class GeneratorVisitor implements Visitor {
         gen("movq", "%rax", "%rdi");
 
         // actually call
-		gen("lea", c.methodToOffset(m) + "(%rdi)", "%rax");
+        gen("movq", "(%rdi)", "%rcx");
+		gen("lea", 8 + c.methodToOffset(m) + "(%rcx)", "%rax");
 		gen("call", "*(%rax)");  
 
         // pop arguments
