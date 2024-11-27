@@ -9,8 +9,8 @@ asm_main:
 	pushq %rax
 	call BS$BS
 	movq %rax,%rdi
-	movq (%rdi),%rcx
-	lea 16(%rcx),%rax
+	movq (%rdi),%rax
+	lea 16(%rax),%rax
 	call *(%rax)
 	popq %rdx
 	popq %rdx
@@ -31,14 +31,19 @@ BS$Start:
 	pushq %rbp
 	movq %rsp,%rbp
 	subq $16,%rsp
+	movq 16(%rbp),%rax
+	pushq %rdi
+	movq %rax,%rdi
+	call put
+	popq %rdi
 	pushq %rdi
 	pushq %rax
-	movq 8(%rbp),%rax
+	movq 16(%rbp),%rax
 	pushq %rax
 	movq %rdi,%rax
 	movq %rax,%rdi
-	movq (%rdi),%rcx
-	lea 56(%rcx),%rax
+	movq (%rdi),%rax
+	lea 56(%rax),%rax
 	call *(%rax)
 	popq %rdx
 	popq %rdx
@@ -47,8 +52,8 @@ BS$Start:
 	pushq %rdi
 	movq %rdi,%rax
 	movq %rax,%rdi
-	movq (%rdi),%rcx
-	lea 48(%rcx),%rax
+	movq (%rdi),%rax
+	lea 48(%rax),%rax
 	call *(%rax)
 	popq %rdi
 	movq %rax,-16(%rbp)
@@ -58,216 +63,216 @@ BS$Start:
 	pushq %rax
 	movq %rdi,%rax
 	movq %rax,%rdi
-	movq (%rdi),%rcx
-	lea 24(%rcx),%rax
+	movq (%rdi),%rax
+	lea 24(%rax),%rax
 	call *(%rax)
 	popq %rdx
 	popq %rdx
 	popq %rdi
 	cmpq $0,%rax
-	je else0
+	je elseIf1
 	movq $1,%rax
 	pushq %rdi
 	movq %rax,%rdi
 	call put
 	popq %rdi
-	jmp done0
-	else0:
+	jmp doneIf1
+	elseIf1:
 	movq $0,%rax
 	pushq %rdi
 	movq %rax,%rdi
 	call put
 	popq %rdi
-	done0:
+	doneIf1:
 	pushq %rdi
 	pushq %rax
 	movq $19,%rax
 	pushq %rax
 	movq %rdi,%rax
 	movq %rax,%rdi
-	movq (%rdi),%rcx
-	lea 24(%rcx),%rax
+	movq (%rdi),%rax
+	lea 24(%rax),%rax
 	call *(%rax)
 	popq %rdx
 	popq %rdx
 	popq %rdi
 	cmpq $0,%rax
-	je else1
+	je elseIf2
 	movq $1,%rax
 	pushq %rdi
 	movq %rax,%rdi
 	call put
 	popq %rdi
-	jmp done1
-	else1:
+	jmp doneIf2
+	elseIf2:
 	movq $0,%rax
 	pushq %rdi
 	movq %rax,%rdi
 	call put
 	popq %rdi
-	done1:
+	doneIf2:
 	pushq %rdi
 	pushq %rax
 	movq $20,%rax
 	pushq %rax
 	movq %rdi,%rax
 	movq %rax,%rdi
-	movq (%rdi),%rcx
-	lea 24(%rcx),%rax
+	movq (%rdi),%rax
+	lea 24(%rax),%rax
 	call *(%rax)
 	popq %rdx
 	popq %rdx
 	popq %rdi
 	cmpq $0,%rax
-	je else2
+	je elseIf3
 	movq $1,%rax
 	pushq %rdi
 	movq %rax,%rdi
 	call put
 	popq %rdi
-	jmp done2
-	else2:
+	jmp doneIf3
+	elseIf3:
 	movq $0,%rax
 	pushq %rdi
 	movq %rax,%rdi
 	call put
 	popq %rdi
-	done2:
+	doneIf3:
 	pushq %rdi
 	pushq %rax
 	movq $21,%rax
 	pushq %rax
 	movq %rdi,%rax
 	movq %rax,%rdi
-	movq (%rdi),%rcx
-	lea 24(%rcx),%rax
+	movq (%rdi),%rax
+	lea 24(%rax),%rax
 	call *(%rax)
 	popq %rdx
 	popq %rdx
 	popq %rdi
 	cmpq $0,%rax
-	je else3
+	je elseIf4
 	movq $1,%rax
 	pushq %rdi
 	movq %rax,%rdi
 	call put
 	popq %rdi
-	jmp done3
-	else3:
+	jmp doneIf4
+	elseIf4:
 	movq $0,%rax
 	pushq %rdi
 	movq %rax,%rdi
 	call put
 	popq %rdi
-	done3:
+	doneIf4:
 	pushq %rdi
 	pushq %rax
 	movq $37,%rax
 	pushq %rax
 	movq %rdi,%rax
 	movq %rax,%rdi
-	movq (%rdi),%rcx
-	lea 24(%rcx),%rax
+	movq (%rdi),%rax
+	lea 24(%rax),%rax
 	call *(%rax)
 	popq %rdx
 	popq %rdx
 	popq %rdi
 	cmpq $0,%rax
-	je else4
+	je elseIf5
 	movq $1,%rax
 	pushq %rdi
 	movq %rax,%rdi
 	call put
 	popq %rdi
-	jmp done4
-	else4:
+	jmp doneIf5
+	elseIf5:
 	movq $0,%rax
 	pushq %rdi
 	movq %rax,%rdi
 	call put
 	popq %rdi
-	done4:
+	doneIf5:
 	pushq %rdi
 	pushq %rax
 	movq $38,%rax
 	pushq %rax
 	movq %rdi,%rax
 	movq %rax,%rdi
-	movq (%rdi),%rcx
-	lea 24(%rcx),%rax
+	movq (%rdi),%rax
+	lea 24(%rax),%rax
 	call *(%rax)
 	popq %rdx
 	popq %rdx
 	popq %rdi
 	cmpq $0,%rax
-	je else5
+	je elseIf6
 	movq $1,%rax
 	pushq %rdi
 	movq %rax,%rdi
 	call put
 	popq %rdi
-	jmp done5
-	else5:
+	jmp doneIf6
+	elseIf6:
 	movq $0,%rax
 	pushq %rdi
 	movq %rax,%rdi
 	call put
 	popq %rdi
-	done5:
+	doneIf6:
 	pushq %rdi
 	pushq %rax
 	movq $39,%rax
 	pushq %rax
 	movq %rdi,%rax
 	movq %rax,%rdi
-	movq (%rdi),%rcx
-	lea 24(%rcx),%rax
+	movq (%rdi),%rax
+	lea 24(%rax),%rax
 	call *(%rax)
 	popq %rdx
 	popq %rdx
 	popq %rdi
 	cmpq $0,%rax
-	je else6
+	je elseIf7
 	movq $1,%rax
 	pushq %rdi
 	movq %rax,%rdi
 	call put
 	popq %rdi
-	jmp done6
-	else6:
+	jmp doneIf7
+	elseIf7:
 	movq $0,%rax
 	pushq %rdi
 	movq %rax,%rdi
 	call put
 	popq %rdi
-	done6:
+	doneIf7:
 	pushq %rdi
 	pushq %rax
 	movq $50,%rax
 	pushq %rax
 	movq %rdi,%rax
 	movq %rax,%rdi
-	movq (%rdi),%rcx
-	lea 24(%rcx),%rax
+	movq (%rdi),%rax
+	lea 24(%rax),%rax
 	call *(%rax)
 	popq %rdx
 	popq %rdx
 	popq %rdi
 	cmpq $0,%rax
-	je else7
+	je elseIf8
 	movq $1,%rax
 	pushq %rdi
 	movq %rax,%rdi
 	call put
 	popq %rdi
-	jmp done7
-	else7:
+	jmp doneIf8
+	elseIf8:
 	movq $0,%rax
 	pushq %rdi
 	movq %rax,%rdi
 	call put
 	popq %rdi
-	done7:
+	doneIf8:
 	movq $999,%rax
 	movq %rbp,%rsp
 	popq %rbp
@@ -293,8 +298,8 @@ BS$Search:
 	movq %rax,-24(%rbp)
 	movq $1,%rax
 	movq %rax,-32(%rbp)
-	jmp test0
-	loop0:
+	jmp testWhile1
+	loopWhile1:
 	movq -16(%rbp),%rax
 	movq %rax,%rdx
 	movq -24(%rbp),%rax
@@ -306,8 +311,8 @@ BS$Search:
 	pushq %rax
 	movq %rdi,%rax
 	movq %rax,%rdi
-	movq (%rdi),%rcx
-	lea 32(%rcx),%rax
+	movq (%rdi),%rax
+	lea 32(%rax),%rax
 	call *(%rax)
 	popq %rdx
 	popq %rdx
@@ -321,96 +326,96 @@ BS$Search:
 	movq %rax,-48(%rbp)
 	movq -48(%rbp),%rax
 	movq %rax,%rdx
-	movq 8(%rbp),%rax
+	movq 16(%rbp),%rax
 	cmpq %rdx,%rax
-	jl lessThan0
+	jl trueLessThan1
 	movq $0,%rax
-	jmp finish0
-	lessThan0:
+	jmp doneLessThan1
+	trueLessThan1:
 	movq $1,%rax
-	finish0:
+	doneLessThan1:
 	cmpq $0,%rax
-	je else8
+	je elseIf9
 	movq $1,%rax
 	movq %rax,%rdx
 	movq -40(%rbp),%rax
 	subq %rdx,%rax
 	movq %rax,-16(%rbp)
-	jmp done8
-	else8:
+	jmp doneIf9
+	elseIf9:
 	movq $1,%rax
 	movq %rax,%rdx
 	movq -40(%rbp),%rax
 	addq %rdx,%rax
 	movq %rax,-24(%rbp)
-	done8:
+	doneIf9:
 	pushq %rdi
 	movq -48(%rbp),%rax
 	pushq %rax
-	movq 8(%rbp),%rax
+	movq 16(%rbp),%rax
 	pushq %rax
 	movq %rdi,%rax
 	movq %rax,%rdi
-	movq (%rdi),%rcx
-	lea 40(%rcx),%rax
+	movq (%rdi),%rax
+	lea 40(%rax),%rax
 	call *(%rax)
 	popq %rdx
 	popq %rdx
 	popq %rdi
 	cmpq $0,%rax
-	je else9
+	je elseIf10
 	movq $0,%rax
 	movq %rax,-32(%rbp)
-	jmp done9
-	else9:
+	jmp doneIf10
+	elseIf10:
 	movq $1,%rax
 	movq %rax,-32(%rbp)
-	done9:
+	doneIf10:
 	movq -24(%rbp),%rax
 	movq %rax,%rdx
 	movq -16(%rbp),%rax
 	cmpq %rdx,%rax
-	jl lessThan1
+	jl trueLessThan2
 	movq $0,%rax
-	jmp finish1
-	lessThan1:
+	jmp doneLessThan2
+	trueLessThan2:
 	movq $1,%rax
-	finish1:
+	doneLessThan2:
 	cmpq $0,%rax
-	je else10
+	je elseIf11
 	movq $0,%rax
 	movq %rax,-32(%rbp)
-	jmp done10
-	else10:
+	jmp doneIf11
+	elseIf11:
 	movq $0,%rax
 	movq %rax,-56(%rbp)
-	done10:
-	test0:
+	doneIf11:
+	testWhile1:
 	movq -32(%rbp),%rax
 	cmpq $1,%rax
-	je loop0
+	je loopWhile1
 	pushq %rdi
 	movq -48(%rbp),%rax
 	pushq %rax
-	movq 8(%rbp),%rax
+	movq 16(%rbp),%rax
 	pushq %rax
 	movq %rdi,%rax
 	movq %rax,%rdi
-	movq (%rdi),%rcx
-	lea 40(%rcx),%rax
+	movq (%rdi),%rax
+	lea 40(%rax),%rax
 	call *(%rax)
 	popq %rdx
 	popq %rdx
 	popq %rdi
 	cmpq $0,%rax
-	je else11
+	je elseIf12
 	movq $1,%rax
 	movq %rax,-8(%rbp)
-	jmp done11
-	else11:
+	jmp doneIf12
+	elseIf12:
 	movq $0,%rax
 	movq %rax,-8(%rbp)
-	done11:
+	doneIf12:
 	movq -8(%rbp),%rax
 	movq %rbp,%rsp
 	popq %rbp
@@ -426,11 +431,11 @@ BS$Div:
 	movq %rax,-16(%rbp)
 	movq $1,%rax
 	movq %rax,%rdx
-	movq 8(%rbp),%rax
+	movq 16(%rbp),%rax
 	subq %rdx,%rax
 	movq %rax,-24(%rbp)
-	jmp test1
-	loop1:
+	jmp testWhile2
+	loopWhile2:
 	movq $1,%rax
 	movq %rax,%rdx
 	movq -8(%rbp),%rax
@@ -441,19 +446,19 @@ BS$Div:
 	movq -16(%rbp),%rax
 	addq %rdx,%rax
 	movq %rax,-16(%rbp)
-	test1:
+	testWhile2:
 	movq -24(%rbp),%rax
 	movq %rax,%rdx
 	movq -16(%rbp),%rax
 	cmpq %rdx,%rax
-	jl lessThan2
+	jl trueLessThan3
 	movq $0,%rax
-	jmp finish2
-	lessThan2:
+	jmp doneLessThan3
+	trueLessThan3:
 	movq $1,%rax
-	finish2:
+	doneLessThan3:
 	cmpq $1,%rax
-	je loop1
+	je loopWhile2
 	movq -8(%rbp),%rax
 	movq %rbp,%rsp
 	popq %rbp
@@ -472,41 +477,43 @@ BS$Compare:
 	movq %rax,-16(%rbp)
 	movq 16(%rbp),%rax
 	movq %rax,%rdx
-	movq 8(%rbp),%rax
+	movq 24(%rbp),%rax
 	cmpq %rdx,%rax
-	jl lessThan3
+	jl trueLessThan4
 	movq $0,%rax
-	jmp finish3
-	lessThan3:
+	jmp doneLessThan4
+	trueLessThan4:
 	movq $1,%rax
-	finish3:
+	doneLessThan4:
 	cmpq $0,%rax
-	je else12
+	je elseIf13
 	movq $0,%rax
 	movq %rax,-8(%rbp)
-	jmp done12
-	else12:
+	jmp doneIf13
+	elseIf13:
 	movq -16(%rbp),%rax
 	movq %rax,%rdx
-	movq 8(%rbp),%rax
+	movq 24(%rbp),%rax
 	cmpq %rdx,%rax
-	jl lessThan4
+	jl trueLessThan5
 	movq $0,%rax
-	jmp finish4
-	lessThan4:
+	jmp doneLessThan5
+	trueLessThan5:
 	movq $1,%rax
-	finish4:
-	notq %rax
+	doneLessThan5:
 	cmpq $0,%rax
-	je else13
+	movq $0,%rax
+	sete %al
+	cmpq $0,%rax
+	je elseIf14
 	movq $0,%rax
 	movq %rax,-8(%rbp)
-	jmp done13
-	else13:
+	jmp doneIf14
+	elseIf14:
 	movq $1,%rax
 	movq %rax,-8(%rbp)
-	done13:
-	done12:
+	doneIf14:
+	doneIf13:
 	movq -8(%rbp),%rax
 	movq %rbp,%rsp
 	popq %rbp
@@ -518,8 +525,8 @@ BS$Print:
 	subq $8,%rsp
 	movq $1,%rax
 	movq %rax,-8(%rbp)
-	jmp test2
-	loop2:
+	jmp testWhile3
+	loopWhile3:
 	movq 8(%rdi),%rax
 	pushq %rax
 	movq -8(%rbp),%rax
@@ -534,19 +541,19 @@ BS$Print:
 	movq -8(%rbp),%rax
 	addq %rdx,%rax
 	movq %rax,-8(%rbp)
-	test2:
+	testWhile3:
 	movq 16(%rdi),%rax
 	movq %rax,%rdx
 	movq -8(%rbp),%rax
 	cmpq %rdx,%rax
-	jl lessThan5
+	jl trueLessThan6
 	movq $0,%rax
-	jmp finish5
-	lessThan5:
+	jmp doneLessThan6
+	trueLessThan6:
 	movq $1,%rax
-	finish5:
+	doneLessThan6:
 	cmpq $1,%rax
-	je loop2
+	je loopWhile3
 	movq $99999,%rax
 	pushq %rdi
 	movq %rax,%rdi
@@ -561,9 +568,9 @@ BS$Init:
 	pushq %rbp
 	movq %rsp,%rbp
 	subq $32,%rsp
-	movq 8(%rbp),%rax
+	movq 16(%rbp),%rax
 	movq %rax,16(%rdi)
-	movq 8(%rbp),%rax
+	movq 16(%rbp),%rax
 	pushq %rax
 	incq %rax
 	shlq $3,%rax
@@ -577,15 +584,15 @@ BS$Init:
 	movq %rdx,(%rax)
 	movq $8,%rcx
 	pushq %rax
-	test_NewArray1:
+	testNewArray1:
 	testq $0,%rdx
-	je done_NewArray1
+	je doneNewArray1
 	addq %rcx,%rax
 	movq $0,(%rax)
 	shlq $2,%rcx
 	decq %rdx
-	jmp test_NewArray1
-	done_NewArray1:
+	jmp testNewArray1
+	doneNewArray1:
 	popq %rax
 	movq %rax,8(%rdi)
 	movq $1,%rax
@@ -595,8 +602,8 @@ BS$Init:
 	movq 16(%rdi),%rax
 	addq %rdx,%rax
 	movq %rax,-16(%rbp)
-	jmp test3
-	loop3:
+	jmp testWhile4
+	loopWhile4:
 	movq -8(%rbp),%rax
 	movq %rax,%rdx
 	movq $2,%rax
@@ -626,19 +633,19 @@ BS$Init:
 	movq -16(%rbp),%rax
 	subq %rdx,%rax
 	movq %rax,-16(%rbp)
-	test3:
+	testWhile4:
 	movq 16(%rdi),%rax
 	movq %rax,%rdx
 	movq -8(%rbp),%rax
 	cmpq %rdx,%rax
-	jl lessThan6
+	jl trueLessThan7
 	movq $0,%rax
-	jmp finish6
-	lessThan6:
+	jmp doneLessThan7
+	trueLessThan7:
 	movq $1,%rax
-	finish6:
+	doneLessThan7:
 	cmpq $1,%rax
-	je loop3
+	je loopWhile4
 	movq $0,%rax
 	movq %rbp,%rsp
 	popq %rbp

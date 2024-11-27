@@ -12,9 +12,6 @@ public class GeneratorVisitor implements Visitor {
     private ADT st;
     private static final String TAB = "\t";
     private int stackBytes; // number of bytes currently allocated on stack
-    private int ifHash;
-    private int whileHash;
-    private int compareHash;
 
     private Map<String,Integer> labels = new HashMap<>();
 
@@ -24,9 +21,6 @@ public class GeneratorVisitor implements Visitor {
         this.global = global;
         st = global;
         stackBytes = 0;
-        ifHash = 0;
-        whileHash = 0;
-        compareHash = 0;
     }
 
     @Override
@@ -200,11 +194,6 @@ public class GeneratorVisitor implements Visitor {
     }
 
     @Override
-    public void visit(VarDecl n) {
-        throw new IllegalStateException("Unreachable code.");
-    }
-
-    @Override
     public void visit(MethodDecl n) {
         ClassADT c = (ClassADT) st;
 	    MethodADT m = (MethodADT) c.getMethod(n.i.s);
@@ -241,40 +230,38 @@ public class GeneratorVisitor implements Visitor {
 
     @Override
     public void visit(If n) {
-        //save hash for this if stmnt to avoid children mutating
-        int currHash = ifHash;
-        ifHash++;
-        //evaluate condition and put it into %rax
+        String elseIf = getLabel("elseIf");
+        String doneIf = getLabel("doneIf");
+        // evaluate condition and put it into %rax
         n.e.accept(this);
-        //test condition, if false jump to else
-        gen("cmpq", 0,"%rax");
-        gen("je else" + currHash);
-        //generate else code
+        // test condition, if false jump to else
+        gen("cmpq", 0, "%rax");
+        gen("je", elseIf);
+        // generate else code
         n.s1.accept(this);
-        //jump to end of if (skip else)
-        gen("jmp done" + currHash);
-        //label else and generate else code
-        gen("else" + currHash + ":");
+        // jump to end of if (skip else)
+        gen("jmp", doneIf);
+        // label else and generate else code
+        gen(elseIf + ":");
         n.s2.accept(this);
-        //label end of if else stmnt
-        gen("done" + currHash + ":");
+        // label end of if else stmnt
+        gen(doneIf + ":");
     }
 
     @Override
     public void visit(While n) {
-        //save hash for this while stmnt to avoid children mutating
-        int currHash = whileHash;
-        whileHash++;
-        gen("jmp test" + currHash);
-        ///label and generate loop code
-        gen("loop" + currHash + ":");
+        String testWhile = getLabel("testWhile");
+        String loopWhile = getLabel("loopWhile");
+        gen("jmp", testWhile);
+        /// label and generate loop code
+        gen(loopWhile + ":");
         n.s.accept(this);
-        //label test and generate code evaluating test
-        gen("test" + currHash + ":");
+        // label test and generate code evaluating test
+        gen(testWhile + ":");
         n.e.accept(this);
-        //jump back to loop if test is true
-        gen("cmpq", 1,"%rax");
-        gen("je loop" + currHash);
+        // jump back to loop if test is true
+        gen("cmpq", 1, "%rax");
+        gen("je", loopWhile);
     }
 
     @Override
@@ -323,21 +310,21 @@ public class GeneratorVisitor implements Visitor {
 
     @Override
     public void visit(LessThan n) {
-        int currHash = compareHash;
-        compareHash++;
+        String trueLessThan = getLabel("trueLessThan");
+        String doneLessThan = getLabel("doneLessThan");
         n.e2.accept(this);
         gen("movq", "%rax", "%rdx");
         n.e1.accept(this);
         // sets codes with rax - rdx ie e1 - e2
         gen("cmpq", "%rdx", "%rax");
-        //jump to lessThan if e1 is less than e2
-        gen("jl lessThan" + currHash );
-        //move false to rax if e1 isn't less than e2
+        // jump to lessThan if e1 is less than e2
+        gen("jl", trueLessThan);
+        // move false to rax if e1 isn't less than e2
         gen("movq", 0, "%rax");
-        gen("jmp finish" + currHash);
-        gen("lessThan" + currHash + ":");
+        gen("jmp", doneLessThan);
+        gen(trueLessThan + ":");
         gen("movq", 1, "%rax");
-        gen("finish" + currHash + ":");
+        gen(doneLessThan + ":");
     }
 
     @Override
@@ -405,8 +392,8 @@ public class GeneratorVisitor implements Visitor {
         gen("movq", "%rax", "%rdi");
 
         // actually call
-        gen("movq", "(%rdi)", "%rcx");
-		gen("lea", 8 + c.methodToOffset(m) + "(%rcx)", "%rax");
+        gen("movq", "(%rdi)", "%rax");
+		gen("lea", 8 + c.methodToOffset(m) + "(%rax)", "%rax");
 		gen("call", "*(%rax)");  
 
         // pop arguments
@@ -479,8 +466,8 @@ public class GeneratorVisitor implements Visitor {
         String arr = "%rax";
 		
         // 3. Execute for-loop
-		String done = getLabel("done_NewArray");
-		String test = getLabel("test_NewArray");
+		String done = getLabel("doneNewArray");
+		String test = getLabel("testNewArray");
 		gen(test + ":");
 
 		// test
@@ -508,8 +495,17 @@ public class GeneratorVisitor implements Visitor {
 
     @Override
     public void visit(Not n) {
+        // n.e.accept(this);
+        // gen("notq", "%rax");
         n.e.accept(this);
-        gen("notq %rax");
+        gen("cmpq", 0, "%rax");
+        gen("movq", 0, "%rax");
+        gen("sete", "%al");
+    }
+
+    @Override
+    public void visit(VarDecl n) {
+        throw new IllegalStateException("Unreachable code.");
     }
 
     @Override

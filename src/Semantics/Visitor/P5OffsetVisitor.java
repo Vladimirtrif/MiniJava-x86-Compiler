@@ -110,7 +110,8 @@ public class P5OffsetVisitor implements Visitor {
         for (String name : m.varNames()) {
             if (i < m.numParams) {
                 // name is param (located before %rbp)
-                m.varToOffset.put(name, 8 + 8 * i);
+                int j = m.numParams - i;
+                m.varToOffset.put(name, 8 + 8*j);
             } else {
                 // name is local (located after %rbp)
                 int j = i - m.numParams;
