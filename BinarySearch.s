@@ -577,15 +577,15 @@ BS$Init:
 	movq %rdx,(%rax)
 	movq $8,%rcx
 	pushq %rax
-	test:
+	test_NewArray1:
 	testq $0,%rdx
-	je done
+	je done_NewArray1
 	addq %rcx,%rax
 	movq $0,(%rax)
 	shlq $2,%rcx
 	decq %rdx
-	jmp test
-	done:
+	jmp test_NewArray1
+	done_NewArray1:
 	popq %rax
 	movq %rax,8(%rdi)
 	movq $1,%rax

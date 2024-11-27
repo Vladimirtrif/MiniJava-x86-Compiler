@@ -3,6 +3,7 @@ package Generator.Visitor;
 import AST.*;
 import AST.Visitor.Visitor;
 import Semantics.*;
+import java.util.*;
 
 public class GeneratorVisitor implements Visitor {
 
@@ -15,6 +16,7 @@ public class GeneratorVisitor implements Visitor {
     private int whileHash;
     private int compareHash;
 
+    private Map<String,Integer> labels = new HashMap<>();
 
     // Constructor
     public GeneratorVisitor(GlobalADT global) {
@@ -95,6 +97,16 @@ public class GeneratorVisitor implements Visitor {
 
     private void call(String c, String m) {
 		call(c + "$" + m);
+	}
+
+    private String getLabel(String s) {
+		if(labels.containsKey(s)) {
+			int count = labels.get(s);
+			labels.put(s, count+1);
+			return s + (count + 1);
+		}
+		labels.put(s, 1);
+		return s + 1;
 	}
 
     @Override
@@ -467,8 +479,8 @@ public class GeneratorVisitor implements Visitor {
         String arr = "%rax";
 		
         // 3. Execute for-loop
-		String done = "done";
-		String test = "test";
+		String done = getLabel("done_NewArray");
+		String test = getLabel("test_NewArray");
 		gen(test + ":");
 
 		// test
