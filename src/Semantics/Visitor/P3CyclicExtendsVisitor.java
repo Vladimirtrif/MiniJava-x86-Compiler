@@ -40,7 +40,8 @@ public class P3CyclicExtendsVisitor implements Visitor {
     public void visit(MainClass n) {}
 
     @Override
-    public void visit(ClassDeclSimple n) {}
+    public void visit(ClassDeclSimple n) {
+    }
 
     @Override
     public void visit(ClassDeclExtends n) {

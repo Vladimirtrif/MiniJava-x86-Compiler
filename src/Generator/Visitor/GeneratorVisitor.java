@@ -268,17 +268,14 @@ public class GeneratorVisitor implements Visitor {
     @Override
     public void visit(Assign n) {   // i = e;
         n.e.accept(this);   // stored at (%rax)
-        ADT owner = n.i.type.prev;
-        switch (owner) {
-            case MethodADT m -> {
-                int offset = m.varToOffset(n.i.s);
-                gen("movq", "%rax", offset + "(%rbp)");
-            }
-            case ClassADT c -> {
-                int offset = c.fieldToOffset(n.i.s);
-                gen("movq", "%rax", offset + "(%rdi)");
-            }
-            default -> throw new IllegalStateException("Unreachable code.");
+        MethodADT m = (MethodADT) st;
+        if (m.get(n.i.s) != null) {
+            int offset = m.varToOffset(n.i.s);
+            gen("movq", "%rax", offset + "(%rbp)");
+        } else {
+            ClassADT c = m.getClassADT();
+            int offset = c.fieldToOffset(n.i.s);
+            gen("movq", "%rax", offset + "(%rdi)");
         }
     }
 
@@ -290,18 +287,14 @@ public class GeneratorVisitor implements Visitor {
 		n.e2.accept(this); 
 		pop("%rdx");    // e1 in %rdx, e2 in %rax
 
-        // fetch i at %rcx
-        ADT owner = n.i.type.prev;
-        switch (owner) {
-            case MethodADT m -> {
-                int offset = m.varToOffset(n.i.s);
-                gen("movq", offset + "(%rbp)", "%rcx");
-            }
-            case ClassADT c -> {
-                int offset = c.fieldToOffset(n.i.s);
-                gen("movq", offset + "(%rdi)", "%rcx");
-            }
-            default -> throw new IllegalStateException("Unreachable code.");
+        MethodADT m = (MethodADT) st;
+        if (m.get(n.i.s) != null) {
+            int offset = m.varToOffset(n.i.s);
+            gen("movq", offset + "(%rbp)", "%rcx");
+        } else {
+            ClassADT c = m.getClassADT();
+            int offset = c.fieldToOffset(n.i.s);
+            gen("movq", offset + "(%rdi)", "%rcx");
         }
 
         // assign
@@ -430,21 +423,17 @@ public class GeneratorVisitor implements Visitor {
 
     @Override
     public void visit(IdentifierExp n) {
-        ADT owner = n.type.prev;
-        switch (owner) {
-            case MethodADT m -> {
-                // if a method owns n, then n is either param or local.
-                // if param, then n's offset is positive (located above rbp)
-                // if local, then n's offset is negative (located below rbp)
-                int offset = m.varToOffset(n.s);
-                gen("movq", offset + "(%rbp)", "%rax");
-            }
-            case ClassADT c -> {
-                // if a class owns n, then n is a field.
-                int offset = c.fieldToOffset(n.s);
-                gen("movq", offset + "(%rdi)", "%rax");
-            }
-            default -> throw new IllegalStateException("Unreachable code.");
+        MethodADT m = (MethodADT) st;
+        if (m.get(n.s) != null) {
+            // if a method owns n, then n is either param or local.
+            // if param, then n's offset is positive (located above rbp)
+            // if local, then n's offset is negative (located below rbp)
+            int offset = m.varToOffset(n.s);
+            gen("movq", offset + "(%rbp)", "%rax");
+        } else {
+            ClassADT c = m.getClassADT();
+            int offset = c.fieldToOffset(n.s);
+            gen("movq", offset + "(%rdi)", "%rax");
         }
     }
 

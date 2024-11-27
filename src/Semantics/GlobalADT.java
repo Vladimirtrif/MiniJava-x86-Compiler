@@ -13,10 +13,12 @@ public class GlobalADT extends ADT {
 	public ADT get(String s) { return table.get(s); }
 	public ADT getOrDeclare(String s) { return table.getOrDeclare(s); }
 	public String put(String s, ADT t) {
+        t.prev = this;
         return table.put(s, t) == null ? null
             : "DuplicateNameError: Duplicate class name '" + s + "' declared.";
     }
     public String put(String s, ADT t, int lineNumber) {
+        t.prev = this;
         return table.put(s, t) == null ? null
             : "DuplicateNameError: Duplicate class name '" + s + "' declared (line " + lineNumber + ").";
     }

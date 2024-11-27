@@ -60,14 +60,14 @@ public class P2TableVisitor implements Visitor {
 
     @Override
     public void visit(ClassDeclSimple n) {
-    st = global.get(n.i.s);
-    for (int i = 0; i < n.vl.size(); i++) {
-        n.vl.get(i).accept(this);
-    }
-    for (int i = 0; i < n.ml.size(); i++) {
-        n.ml.get(i).accept(this);
-    }
-    st = st.prev;
+        st = global.get(n.i.s);
+        for (int i = 0; i < n.vl.size(); i++) {
+            n.vl.get(i).accept(this);
+        }
+        for (int i = 0; i < n.ml.size(); i++) {
+            n.ml.get(i).accept(this);
+        }
+        st = st.prev;
     }
 
     @Override
@@ -116,7 +116,6 @@ public class P2TableVisitor implements Visitor {
     public void visit(Formal n) {
         String name = n.i.s;
         ADT t = convertToADT(n.t);
-        t.prev = st;
         String error;
         switch (st) {
             case ClassADT c -> error = c.putField(name, t, n.line_number);
@@ -130,7 +129,6 @@ public class P2TableVisitor implements Visitor {
     public void visit(VarDecl n) {
         String name = n.i.s;
         ADT t = convertToADT(n.t);
-        t.prev = st;
         String error;
         switch (st) {
             case ClassADT c -> error = c.putField(name, t, n.line_number);

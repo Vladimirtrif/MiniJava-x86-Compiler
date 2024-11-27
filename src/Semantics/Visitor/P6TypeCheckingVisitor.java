@@ -419,6 +419,8 @@ public class P6TypeCheckingVisitor implements Visitor {
         if (t == null) {
             addError(n.s + " isn't declared. In line " + n.line_number);
             n.type = UndefinedADT.UNDEFINED;
+        } else {
+            n.type = t;
         }
     }
 
@@ -429,6 +431,8 @@ public class P6TypeCheckingVisitor implements Visitor {
         if (t == null) {
             addError(n.s + " isn't declared. In line " + n.line_number);
             n.type = UndefinedADT.UNDEFINED;
+        } else {
+            n.type = t;
         }
     }
 
