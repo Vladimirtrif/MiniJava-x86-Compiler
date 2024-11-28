@@ -194,7 +194,7 @@ public class P6TypeCheckingVisitor implements Visitor {
         n.type = null;
         n.i.accept(this);
         n.e.accept(this);
-        if (!n.e.type.assignable(n.i.type)) {
+        if (!n.i.type.assignable(n.e.type)) {
             addError("Expression of type " + n.e.type.toString() + " is not assignable to variable " + n.i.toString() + " which has type " + n.i.type.toString() + ". In line " + n.line_number);
         }
     }
@@ -350,7 +350,7 @@ public class P6TypeCheckingVisitor implements Visitor {
             Exp arg = n.el.get(k);
             arg.accept(this);
             ADT paramType = i.paramTypes.get(k);    // correct type according to signature
-            if(!arg.type.assignable(paramType)) {
+            if(!paramType.assignable(arg.type)) {
                 addError("TypeError: Incorrect argument type in method call. Expected type " + paramType + " but was " + arg.type + " In line number " + n.line_number);
             }
         }
