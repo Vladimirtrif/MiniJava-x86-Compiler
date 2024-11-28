@@ -9,7 +9,7 @@ fi
 # Extract the input file path and filename without extension
 INPUT_FILE="$1"
 BASENAME=$(basename -- "$INPUT_FILE")
-FILENAME="${BASENAME%.*}"
+FILENAME="out/${BASENAME%.*}"
 
 # Run the MiniJava compiler script
 ./minijava.sh "$INPUT_FILE" > "$FILENAME.s"
