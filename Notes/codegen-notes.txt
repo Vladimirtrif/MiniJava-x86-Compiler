@@ -1,0 +1,10 @@
+1. Codegen notes (Additional extensions, major surprises, etc):
+    - We don't have any extensions or optimizations. We store all function arguments on the stack instead of using registers
+    - Everything is working (to our knowledge, we tested it on all of the sample programs and a few of our own)
+    - We didn't encounter any major surprises just a few basic mistakes along the way
+
+2. Changes made to previous parts:
+    - We fixed all the errors noted in the feedback for semantics
+
+3. How we managed the work:
+   We pair programmed in the cse lab together so we did the entire part of this project together in person.
