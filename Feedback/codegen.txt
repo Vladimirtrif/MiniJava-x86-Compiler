@@ -1,0 +1,18 @@
+Part IV of the MiniJava compiler project, the code generator
+
+TOTAL: 44/60
+Late days used for this assignment: 1
+
+The compiler did not raise an out of bounds error when a program attempted to access an array element at index n, where n is the length of the array. (-2)
+
+The parser crashed on valid syntax for complex boolean expressions like 0 < 1 && true && a < 5. (-2)
+
+The compiler doesn’t properly implement short circuiting of boolean expressions. For example,if the method,‘this.m()’,prints 5,then if (false && this.m()) {...} will print 5. (-2)
+
+When there is shadowing of fields,the shadowed field should have separate values for the subclass and superclass. The generated code did not appear to do this correctly. (-2)
+
+A temporary register to hold values during evaluation of arithmetic expressions seems to be consistently getting clobbered, causing incorrect behavior in many complex expressions. (-4)
+
+The compiler crashed with NullPointerException when an empty class extends from another class. (-2)
+
+The compiler incorrectly rejects a program which overrides a method and returns a subclass. (-2)
